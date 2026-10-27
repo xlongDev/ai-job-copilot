@@ -13,17 +13,13 @@ import {
   CheckCircle2,
   Loader2,
   Zap,
-  ArrowRight,
-  Cpu,
   Clock,
   TrendingUp,
-  Sparkles,
 } from "lucide-react";
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { useAIConfig } from "@/hooks/use-ai-config";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";

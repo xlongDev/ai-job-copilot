@@ -15,9 +15,7 @@ import {
   Circle,
   Loader2,
   Settings2,
-  Plus,
   Zap,
-  Link2,
   Shield,
   Layers,
 } from "lucide-react";
@@ -58,7 +56,7 @@ export function McpView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchServers();
+    void fetchServers();
   }, []);
 
   const fetchServers = async () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import {
   Database,
@@ -9,7 +9,6 @@ import {
   Search,
   Sparkles,
   Trash2,
-  FileCheck,
   Loader2,
   Brain,
   Zap,
@@ -20,7 +19,6 @@ import { SectionHeader } from "@/components/shared/section-header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface KnowledgeDoc {
@@ -42,7 +40,7 @@ export function RagView() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetchDocs();
+    void fetchDocs();
   }, []);
 
   const fetchDocs = async () => {
@@ -94,7 +92,7 @@ export function RagView() {
       await fetch(`/api/knowledge/${id}`, { method: "DELETE" });
       toast.success("已删除");
     } catch {
-      fetchDocs();
+      void fetchDocs();
     }
   };
 

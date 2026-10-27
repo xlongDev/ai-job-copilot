@@ -17,14 +17,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate file type
-    const allowedTypes = [
-      "application/pdf",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/msword",
-      "text/markdown",
-      "text/plain",
-      "application/json",
-    ];
+    
     const fileName = file.name.toLowerCase();
     const isValidExtension =
       fileName.endsWith(".pdf") ||

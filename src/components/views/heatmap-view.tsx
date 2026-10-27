@@ -11,7 +11,6 @@ import {
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 
 interface HeatmapDay {
   date: string;

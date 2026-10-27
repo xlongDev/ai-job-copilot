@@ -6,7 +6,6 @@ import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +13,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { locales } from "@/lib/i18n/translations";
+import { locales } from "@/lib/i18n/locales";
 import { NotificationDrawer } from "@/components/shared/notification-drawer";
 
 const viewTitles: Record<string, { title: string; desc: string }> = {

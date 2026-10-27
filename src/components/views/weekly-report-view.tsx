@@ -1,15 +1,13 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import {
   FileText,
   Loader2,
   Sparkles,
-  TrendingUp,
   Target,
   Mic,
-  Trophy,
   BookOpen,
   RefreshCw,
   Calendar,
@@ -42,7 +40,7 @@ export function WeeklyReportView() {
   const [generatingAI, setGeneratingAI] = useState(false);
 
   useEffect(() => {
-    fetchReport();
+    void fetchReport();
   }, []);
 
   const fetchReport = async () => {

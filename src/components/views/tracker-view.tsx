@@ -5,11 +5,9 @@ import { useState, useEffect } from "react";
 import {
   KanbanSquare,
   Plus,
-  Building2,
   MapPin,
   DollarSign,
   Calendar,
-  MoreHorizontal,
   TrendingUp,
   Trophy,
   Clock,
@@ -75,8 +73,8 @@ export function TrackerView() {
   const [editApp, setEditApp] = useState<Partial<Application>>({});
 
   useEffect(() => {
-    fetchApps();
-    fetchStats();
+    void fetchApps();
+    void fetchStats();
   }, []);
 
   const fetchApps = async () => {
@@ -128,7 +126,7 @@ export function TrackerView() {
         toast.success(`已移动到「${columns.find((c) => c.id === status)?.title}」`);
       } catch {
         toast.error("更新失败");
-        fetchApps(); // Revert
+        void fetchApps(); // Revert
       }
     }
     setDraggedId(null);
@@ -163,7 +161,7 @@ export function TrackerView() {
       await fetch(`/api/applications/${id}`, { method: "DELETE" });
       toast.success("已删除");
     } catch {
-      fetchApps();
+      void fetchApps();
     }
   };
 
@@ -179,8 +177,8 @@ export function TrackerView() {
         toast.success("已更新");
         setEditMode(false);
         setDetailApp(null);
-        fetchApps();
-        fetchStats();
+        void fetchApps();
+        void fetchStats();
       }
     } catch {
       toast.error("更新失败");
@@ -556,7 +554,7 @@ export function TrackerView() {
                       size="sm"
                       className="gap-1.5 text-rose-500 hover:bg-rose-500/10"
                       onClick={() => {
-                        handleDelete(detailApp.id);
+                        void handleDelete(detailApp.id);
                         setDetailApp(null);
                       }}
                     >

@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Resume ID and format are required" }, { status: 400 });
     }
 
-    const resume = await db.resume.findUnique({ where: { id: resumeId } });
+    const resume = await db.resume.findFirst({ where: { id: resumeId, userId } });
     if (!resume) {
       return NextResponse.json({ error: "Resume not found" }, { status: 404 });
     }

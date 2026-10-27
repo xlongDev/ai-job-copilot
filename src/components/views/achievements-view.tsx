@@ -73,7 +73,7 @@ export function AchievementsView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAchievements();
+    void fetchAchievements();
   }, []);
 
   const fetchAchievements = async () => {

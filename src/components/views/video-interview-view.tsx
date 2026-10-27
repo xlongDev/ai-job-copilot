@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Video,
@@ -13,7 +13,6 @@ import {
   Activity,
   Clock,
   RefreshCw,
-  CheckCircle2,
   TrendingUp,
   Brain,
   Hand,
@@ -22,7 +21,6 @@ import {
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ScoreRing } from "@/components/shared/score-ring";
 import { useAIConfig } from "@/hooks/use-ai-config";
@@ -340,7 +338,7 @@ export function VideoInterviewView() {
       stopCamera();
       setPhase("idle");
     } else {
-      startCamera();
+      void startCamera();
     }
   };
 

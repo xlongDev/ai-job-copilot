@@ -6,7 +6,6 @@ import {
   GitCompare,
   Loader2,
   Check,
-  X,
   FileText,
   TrendingUp,
   Award,
@@ -52,7 +51,7 @@ export function ResumeCompareView() {
   } | null>(null);
 
   useEffect(() => {
-    fetchResumes();
+    void fetchResumes();
   }, []);
 
   const fetchResumes = async () => {

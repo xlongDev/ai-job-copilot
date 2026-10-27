@@ -1,11 +1,10 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState } from "react";
 import {
   Layers,
   Play,
-  Pause,
   RotateCcw,
   Bot,
   FileText,
@@ -14,12 +13,8 @@ import {
   Target,
   CheckCircle2,
   Loader2,
-  Circle,
   Zap,
   GitBranch,
-  Settings2,
-  Save,
-  Plus,
 } from "lucide-react";
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";

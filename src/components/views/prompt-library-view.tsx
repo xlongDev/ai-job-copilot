@@ -59,7 +59,7 @@ export function PromptLibraryView() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    fetchPrompts();
+    void fetchPrompts();
   }, []);
 
   const fetchPrompts = async () => {
@@ -120,7 +120,7 @@ export function PromptLibraryView() {
 
   const copyPrompt = () => {
     if (!selected) return;
-    navigator.clipboard?.writeText(selected.prompt);
+    void navigator.clipboard?.writeText(selected.prompt);
     setCopied(true);
     toast.success("Prompt 已复制");
     setTimeout(() => setCopied(false), 2000);
@@ -265,7 +265,7 @@ export function PromptLibraryView() {
                           size="sm"
                           className="gap-1.5"
                           onClick={() => {
-                            navigator.clipboard?.writeText(result);
+                            void navigator.clipboard?.writeText(result);
                             toast.success("已复制结果");
                           }}
                         >

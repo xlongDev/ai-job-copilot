@@ -11,11 +11,9 @@ import {
   Code2,
   Brain,
   MessageSquare,
-  Trophy,
   RotateCcw,
   Sparkles,
 } from "lucide-react";
-import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -219,7 +217,7 @@ export function InterviewChatView() {
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
-                  send();
+                  void send();
                 }
               }}
               placeholder="输入你的回答... (Enter 发送, Shift+Enter 换行)"

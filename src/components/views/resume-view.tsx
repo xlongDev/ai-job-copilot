@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   FileText,
   Upload,
@@ -10,12 +10,10 @@ import {
   X,
   RefreshCw,
   Plus,
-  Download,
   History,
   Wand2,
   GitCompare,
   Loader2,
-  Trash2,
   Star,
 } from "lucide-react";
 import { GlassCard } from "@/components/shared/glass-card";
@@ -76,20 +74,16 @@ export function ResumeView() {
     return () => clearTimeout(timer);
   }, [content, selectedResume]);
 
-  // Fetch resumes from API
-  useEffect(() => {
-    fetchResumes();
-  }, []);
-
-  const fetchResumes = async () => {
+  const fetchResumes = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/resumes");
       const data = await res.json();
       if (data.resumes) {
         setResumes(data.resumes);
-        if (data.resumes.length > 0 && !selectedResume) {
-          selectResume(data.resumes[0]);
+        if (data.resumes.length > 0) {
+          setSelectedResume((prev) => prev ?? data.resumes[0]);
+          setContent((prev) => prev || data.resumes[0].content);
         }
       }
     } catch {
@@ -97,7 +91,12 @@ export function ResumeView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Fetch resumes from API
+  useEffect(() => {
+    void fetchResumes();
+  }, [fetchResumes]);
 
   const selectResume = (resume: Resume) => {
     setSelectedResume(resume);
@@ -384,7 +383,7 @@ export function ResumeView() {
                   </span>
                 </div>
                 <button
-                  onClick={(e) => { e.stopPropagation(); handleDelete(resume.id); }}
+                  onClick={(e) => { e.stopPropagation(); void handleDelete(resume.id); }}
                   className="mt-2 text-[10px] text-muted-foreground hover:text-rose-500"
                 >
                   删除

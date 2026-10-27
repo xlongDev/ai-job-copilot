@@ -9,7 +9,6 @@ import {
   Bell,
   Globe,
   Shield,
-  CreditCard,
   Database,
   Palette,
   Check,
@@ -19,7 +18,6 @@ import {
   ExternalLink,
   Zap,
   Trash2,
-  Plus,
   Loader2,
 } from "lucide-react";
 import { GlassCard } from "@/components/shared/glass-card";
@@ -39,7 +37,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAppStore, type AIProviderId } from "@/lib/store";
 import { AI_PROVIDERS } from "@/lib/ai-providers-config";
-import { locales } from "@/lib/i18n/translations";
+import { locales } from "@/lib/i18n/locales";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 

@@ -11,7 +11,6 @@ import {
   Clock,
   DollarSign,
   AlertCircle,
-  CheckCircle2,
 } from "lucide-react";
 import {
   RadarChart,

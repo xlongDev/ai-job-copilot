@@ -7,12 +7,9 @@ import {
   Github,
   Star,
   GitFork,
-  Code2,
   CheckCircle2,
   AlertCircle,
   TrendingUp,
-  ExternalLink,
-  Award,
   Loader2,
   Search,
 } from "lucide-react";
@@ -22,7 +19,6 @@ import { ScoreRing } from "@/components/shared/score-ring";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface GitHubData {

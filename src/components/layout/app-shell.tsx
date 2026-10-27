@@ -7,7 +7,6 @@ import { CommandPalette } from "./command-palette";
 import { useAppStore } from "@/lib/store";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { lazy, Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton";
 
@@ -50,19 +49,6 @@ const HeatmapView = lazy(() => import("@/components/views/heatmap-view").then(m 
 const CockpitView = lazy(() => import("@/components/views/cockpit-view").then(m => ({ default: m.CockpitView })));
 const InterviewChatView = lazy(() => import("@/components/views/interview-chat-view").then(m => ({ default: m.InterviewChatView })));
 const ResumeScoreView = lazy(() => import("@/components/views/resume-score-view").then(m => ({ default: m.ResumeScoreView })));
-
-function ViewSkeleton() {
-  return (
-    <div className="space-y-4 p-6">
-      <Skeleton className="h-8 w-48" />
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-32 w-full" />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 const viewMap: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
   dashboard: DashboardView,

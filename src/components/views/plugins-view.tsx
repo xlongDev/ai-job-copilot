@@ -11,10 +11,6 @@ import {
   Code2,
   Zap,
   Shield,
-  TrendingUp,
-  Filter,
-  Plus,
-  Settings2,
   ExternalLink,
   Loader2,
 } from "lucide-react";
@@ -48,7 +44,7 @@ export function PluginsView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchPlugins();
+    void fetchPlugins();
   }, []);
 
   const fetchPlugins = async () => {

@@ -5,7 +5,6 @@ import { useState } from "react";
 import {
   Compass,
   TrendingUp,
-  Target,
   BookOpen,
   Award,
   Briefcase,

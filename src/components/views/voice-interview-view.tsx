@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Mic,
@@ -9,9 +9,7 @@ import {
   Phone,
   PhoneOff,
   Radio,
-  Activity,
   Clock,
-  Sparkles,
   RefreshCw,
   CheckCircle2,
   Loader2,
@@ -21,7 +19,6 @@ import {
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ScoreRing } from "@/components/shared/score-ring";
 import { useAIConfig } from "@/hooks/use-ai-config";
@@ -175,7 +172,7 @@ export function VoiceInterviewView() {
       streamRef.current = null;
     }
     if (audioContextRef.current) {
-      audioContextRef.current.close();
+      void audioContextRef.current.close();
       audioContextRef.current = null;
     }
     setAudioLevel(0);
@@ -274,7 +271,7 @@ export function VoiceInterviewView() {
       utterance.pitch = 1;
       utterance.onend = () => {
         if (qIndex < questions.length - 1) {
-          startListening();
+          void startListening();
         } else {
           setPhase("done");
         }
@@ -284,7 +281,7 @@ export function VoiceInterviewView() {
       // No TTS, wait 2s then start listening
       setTimeout(() => {
         if (qIndex < questions.length - 1) {
-          startListening();
+          void startListening();
         } else {
           setPhase("done");
         }
@@ -321,14 +318,14 @@ export function VoiceInterviewView() {
       // Use default questions
     }
 
-    askQuestion(0);
+    void askQuestion(0);
   };
 
   const handleNextQuestion = () => {
     if (currentQ < questions.length - 1) {
       const next = currentQ + 1;
       setCurrentQ(next);
-      askQuestion(next);
+      void askQuestion(next);
     } else {
       setPhase("done");
     }
@@ -342,7 +339,7 @@ export function VoiceInterviewView() {
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [phase]);
+  }, [phase, handleNextQuestion]);
 
   const reset = () => {
     if (recognitionRef.current) recognitionRef.current.stop();

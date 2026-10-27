@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import {
   MessageSquare,
@@ -18,7 +18,6 @@ import {
   Copy,
   RefreshCw,
 } from "lucide-react";
-import { GlassCard } from "@/components/shared/glass-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -106,8 +105,6 @@ export function ChatView() {
 
   const loadSession = async (sessionId: string) => {
     try {
-      const res = await fetch(`/api/chat-sessions?id=${sessionId}`, { method: "GET" });
-      // Fallback: fetch all and find
       const allRes = await fetch("/api/chat-sessions");
       const data = await allRes.json();
       const session = data.sessions?.find((s: { id: string; messages?: unknown }) => s.id === sessionId);
@@ -295,7 +292,7 @@ export function ChatView() {
                 className="h-3 w-3 opacity-0 transition group-hover:opacity-100 text-muted-foreground hover:text-rose-500"
                 onClick={(e) => {
                   e.stopPropagation();
-                  deleteSession(s.id);
+                  void deleteSession(s.id);
                 }}
               />
             </button>
@@ -361,7 +358,7 @@ export function ChatView() {
                     <div className="mt-2 flex items-center gap-1 opacity-0 transition group-hover:opacity-100">
                       <button
                         onClick={() => {
-                          navigator.clipboard?.writeText(msg.content);
+                          void navigator.clipboard?.writeText(msg.content);
                           toast.success("已复制到剪贴板");
                         }}
                         className="flex items-center gap-1 rounded px-2 py-1 text-[10px] text-muted-foreground transition hover:bg-accent hover:text-foreground"
@@ -425,7 +422,7 @@ export function ChatView() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
-                    send();
+                    void send();
                   }
                 }}
                 placeholder="输入消息... (Enter 发送, Shift+Enter 换行)"
@@ -500,7 +497,7 @@ function MarkdownRenderer({ content, streaming }: { content: string; streaming?:
                   <span className="text-[10px] font-medium text-muted-foreground">{block.lang}</span>
                   <button
                     onClick={() => {
-                      navigator.clipboard?.writeText(block.content);
+                      void navigator.clipboard?.writeText(block.content);
                       toast.success("代码已复制");
                     }}
                     className="text-[10px] text-muted-foreground hover:text-foreground transition"

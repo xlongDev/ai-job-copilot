@@ -9,16 +9,11 @@ import {
   Loader2,
   TrendingUp,
   DollarSign,
-  MapPin,
-  Building2,
   Sparkles,
-  Check,
-  X,
 } from "lucide-react";
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ScoreRing } from "@/components/shared/score-ring";
 import { useAIConfig } from "@/hooks/use-ai-config";

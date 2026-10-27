@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState } from "react";
 import {
   Globe,
@@ -8,7 +8,6 @@ import {
   Bot,
   CheckCircle2,
   Loader2,
-  Circle,
   Play,
   RotateCcw,
   ExternalLink,
@@ -20,7 +19,6 @@ import {
   Eye,
   MousePointer2,
   Filter,
-  TrendingUp,
 } from "lucide-react";
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
@@ -95,7 +93,7 @@ export function BrowserAgentView() {
       for (let i = 0; i < stepDefs.length; i++) {
         await new Promise((r) => setTimeout(r, 600));
         stepDefs[i].status = "done";
-        setSteps([...stepDefs.slice(0, i + 1)]);
+        setSteps(stepDefs.slice(0, i + 1));
       }
 
       if (data.jobs) {
@@ -158,8 +156,8 @@ export function BrowserAgentView() {
             ) : (
               <div className="space-y-3">
                 {steps.map((step) => {
-                  const Icon = iconMap[step.icon] || Circle;
                   const isDone = step.status === "done";
+                  const StepIcon = isDone ? CheckCircle2 : iconMap[step.icon] ?? Loader2;
                   return (
                     <motion.div
                       key={step.id}
@@ -171,7 +169,7 @@ export function BrowserAgentView() {
                         "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
                         isDone ? "bg-emerald-500/10 text-emerald-500" : "bg-muted text-muted-foreground"
                       )}>
-                        {isDone ? <CheckCircle2 className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />}
+                        <StepIcon className={cn("h-4 w-4", StepIcon === Loader2 && "animate-spin")} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium">{step.action}</p>

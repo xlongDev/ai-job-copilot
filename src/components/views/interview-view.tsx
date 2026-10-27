@@ -2,17 +2,13 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import {
-  Mic,
-  Video,
-  MessageSquare,
+import {  MessageSquare,
   Code2,
   Brain,
   User,
   Play,
   Loader2,
   CheckCircle2,
-  Star,
   RotateCcw,
   ChevronRight,
   Send,
@@ -174,7 +170,7 @@ export function InterviewView() {
       setPhase("answering");
     } else {
       // Save interview record to database
-      saveInterviewRecord();
+      void saveInterviewRecord();
       toast.success("面试完成！", { description: `共完成 ${questions.length} 道题` });
       setPhase("select");
     }

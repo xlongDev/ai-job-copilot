@@ -37,16 +37,16 @@ export async function POST(req: NextRequest) {
 
 function analyzeATS(content: string): ATSResult {
   const text = content.toLowerCase();
-  const lines = content.split("\n").filter((l) => l.trim());
+  
   const words = content.split(/\s+/).filter(Boolean);
-  const charCount = content.length;
+  
   const wordCount = words.length;
 
   const dimensions: ATSDimension[] = [];
   const allSuggestions: { priority: "high" | "medium" | "low"; text: string }[] = [];
 
   // 1. 标题与结构
-  const hasName = /^[#]?\s*[a-z\u4e00-\u9fa5]/i.test(content);
+  
   const hasEmail = /[\w.+-]+@[\w-]+\.[\w.-]+/.test(content);
   const hasPhone = /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3,4}[-.\s]?\d{4}/.test(content);
   const hasSectionHeaders = /(^|\n)\s*[#\-*]?\s*(工作经历|教育经历|技能|项目经验|work experience|education|skills|projects|experience)/i.test(content);
@@ -100,7 +100,7 @@ function analyzeATS(content: string): ATSResult {
   });
 
   // 4. 量化数据
-  const hasNumbers = /\d+%|\d+次|\d+个|\d+万|\d+百万|\d+billion|\d+million|\d+k\b|\d+用户|\d+人/i.test(content);
+  
   const numberCount = (content.match(/\d+/g) || []).length;
   const quantScore = numberCount < 3 ? 40 : numberCount < 6 ? 70 : numberCount < 10 ? 90 : 100;
 

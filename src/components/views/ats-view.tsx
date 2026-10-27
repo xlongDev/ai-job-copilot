@@ -48,7 +48,7 @@ export function ATSView() {
   const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
-    runScan();
+    void runScan();
   }, []);
 
   const runScan = async () => {

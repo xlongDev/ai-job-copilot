@@ -6,7 +6,6 @@ import {
   Target,
   Building2,
   DollarSign,
-  Calendar,
   TrendingUp,
   Loader2,
   Save,
@@ -17,11 +16,9 @@ import {
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ScoreRing } from "@/components/shared/score-ring";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 

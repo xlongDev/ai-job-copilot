@@ -18,10 +18,6 @@ import {
 import {
   AreaChart,
   Area,
-  RadialBarChart,
-  RadialBar,
-  BarChart,
-  Bar,
   PieChart,
   Pie,
   Cell,
@@ -36,7 +32,7 @@ import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
 import { ScoreRing } from "@/components/shared/score-ring";
 import { AnimatedCounter } from "@/components/shared/animated-counter";
-import { useAppStore } from "@/lib/store";
+import {} from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 interface CockpitStats {
@@ -55,7 +51,7 @@ interface CockpitStats {
 }
 
 export function CockpitView() {
-  const { setView } = useAppStore();
+  
   const [stats, setStats] = useState<CockpitStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -88,10 +84,7 @@ export function CockpitView() {
   const successRate = stats.applications > 0 ? Math.round((stats.offers / stats.applications) * 100) : 0;
   const interviewRate = stats.applications > 0 ? Math.round((stats.interviews / stats.applications) * 100) : 0;
 
-  const radialData = [
-    { name: "成功率", value: successRate, fill: "oklch(0.72 0.17 155)" },
-    { name: "面试率", value: interviewRate, fill: "oklch(0.7 0.18 300)" },
-  ];
+  
 
   const pieData = [
     { name: "已投递", value: stats.applied, color: "oklch(0.72 0.17 155)" },

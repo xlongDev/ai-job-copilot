@@ -6,23 +6,17 @@ import {
   GraduationCap,
   CheckCircle2,
   Circle,
-  Lock,
   Flame,
-  Trophy,
-  ChevronRight,
   BookOpen,
   Code2,
   Server,
   Cloud,
   Brain,
   Loader2,
-  Plus,
 } from "lucide-react";
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -72,7 +66,7 @@ export function LearningView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTasks();
+    void fetchTasks();
   }, []);
 
   const fetchTasks = async () => {
@@ -97,7 +91,7 @@ export function LearningView() {
         body: JSON.stringify({ status: newStatus }),
       });
     } catch {
-      fetchTasks();
+      void fetchTasks();
     }
   };
 

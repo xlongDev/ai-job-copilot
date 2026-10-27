@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Sheet,
   SheetContent,
@@ -56,7 +56,7 @@ export function NotificationDrawer({ open, onOpenChange }: NotificationDrawerPro
 
   useEffect(() => {
     if (open) {
-      fetchNotifications();
+      void fetchNotifications();
     }
   }, [open]);
 

@@ -15,15 +15,12 @@ import {
   TrendingUp,
   Coins,
   Activity,
-  Settings2,
-  Trash2,
   Loader2,
 } from "lucide-react";
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -53,7 +50,7 @@ export function TeamView() {
   const [inviteName, setInviteName] = useState("");
 
   useEffect(() => {
-    fetchMembers();
+    void fetchMembers();
   }, []);
 
   const fetchMembers = async () => {
@@ -70,7 +67,7 @@ export function TeamView() {
   };
 
   const copyInviteLink = () => {
-    navigator.clipboard?.writeText("https://aijobcopilot.com/invite/team-abc123");
+    void navigator.clipboard?.writeText("https://aijobcopilot.com/invite/team-abc123");
     setInviteCopied(true);
     toast.success("邀请链接已复制");
     setTimeout(() => setInviteCopied(false), 2000);
@@ -91,7 +88,7 @@ export function TeamView() {
         toast.success("邀请已发送", { description: inviteEmail });
         setInviteEmail("");
         setInviteName("");
-        fetchMembers();
+        void fetchMembers();
       }
     } catch {
       toast.error("邀请失败");

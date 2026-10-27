@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -15,7 +15,6 @@ import {
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -61,11 +60,7 @@ export function CalendarView() {
   const month = currentDate.getMonth();
   const monthStr = `${year}-${String(month + 1).padStart(2, "0")}`;
 
-  useEffect(() => {
-    fetchCalendar();
-  }, [currentDate]);
-
-  const fetchCalendar = async () => {
+  const fetchCalendar = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/calendar?month=${monthStr}`);
@@ -78,7 +73,11 @@ export function CalendarView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [monthStr]);
+
+  useEffect(() => {
+    void fetchCalendar();
+  }, [fetchCalendar]);
 
   const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
   const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));

@@ -6,11 +6,9 @@ import {
   FileText,
   Loader2,
   Sparkles,
-  TrendingUp,
   CheckCircle2,
   AlertCircle,
   Lightbulb,
-  Target,
 } from "lucide-react";
 import {
   RadarChart,
@@ -23,11 +21,9 @@ import {
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { ScoreRing } from "@/components/shared/score-ring";
 import { useAIConfig } from "@/hooks/use-ai-config";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface Evaluation {

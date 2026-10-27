@@ -72,7 +72,7 @@ export function InterviewRecordsView() {
   const [selected, setSelected] = useState<InterviewRecord | null>(null);
 
   useEffect(() => {
-    fetchRecords();
+    void fetchRecords();
   }, []);
 
   const fetchRecords = async () => {

@@ -1,9 +1,8 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import {
-  FileText,
   Loader2,
   Check,
   Eye,
@@ -42,7 +41,7 @@ export function ResumeTemplatesView() {
   const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchTemplates();
+    void fetchTemplates();
   }, []);
 
   const fetchTemplates = async () => {

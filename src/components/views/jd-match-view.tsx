@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import {
   Target,
-  Upload,
   Link2,
   CheckCircle2,
   XCircle,

@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 // GET /api/goals — get user's job search goals
+// ponytail: 目标尚未持久化（schema 无 Goal 表），返回默认值；接真实存储时改为读库
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
-    const user = await db.user.findUnique({ where: { id: userId } });
-
     // Default goals
     const defaultGoals = {
       targetRole: "Staff Frontend Engineer",
@@ -32,11 +28,10 @@ export async function GET() {
 // POST /api/goals — update goals
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
     const body = await req.json();
     const { targetRole, targetCompany, weeklyApplyGoal, monthlyInterviewGoal, targetSalary, deadline } = body;
 
-    // In production, save to database. For now, return success.
+    // ponytail: 同上，未落库，仅回显；接真实存储时补 db 写入
     return NextResponse.json({
       success: true,
       goals: {

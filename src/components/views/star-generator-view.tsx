@@ -11,7 +11,6 @@ import {
   ListChecks,
   TrendingUp,
   DollarSign,
-  RefreshCw,
 } from "lucide-react";
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
@@ -83,7 +82,7 @@ export function StarGeneratorView() {
   const copyResult = () => {
     if (!result) return;
     const text = `【Situation】${result.situation}\n\n【Task】${result.task}\n\n【Action】${result.action}\n\n【Result】${result.result}\n\n【量化指标】${result.metrics.join("、")}\n\n【商业价值】${result.businessValue}`;
-    navigator.clipboard?.writeText(text);
+    void navigator.clipboard?.writeText(text);
     setCopied(true);
     toast.success("已复制到剪贴板");
     setTimeout(() => setCopied(false), 2000);

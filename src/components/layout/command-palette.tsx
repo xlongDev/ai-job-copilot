@@ -100,7 +100,7 @@ const actions = [
 
 export function CommandPalette() {
   const { commandOpen, setCommandOpen, setView } = useAppStore();
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
 
   const handleSelect = (id: ViewId) => {
     setView(id);

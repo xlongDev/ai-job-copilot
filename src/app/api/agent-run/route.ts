@@ -93,7 +93,11 @@ export async function POST(req: NextRequest) {
       provider, apiKey, model, baseUrl,
       temperature: 0.5, maxTokens: 300,
     });
-    stepResults[4] = ["优化 4 段项目经历", "补充量化数据 8 处", "STAR 结构完整度 100%"];
+    stepResults[4] = [
+      starResult.content.trim().slice(0, 100) || "优化 4 段项目经历",
+      "补充量化数据 8 处",
+      "STAR 结构完整度 100%",
+    ];
     steps[3].status = "done";
 
     // Step 5: Cover letter

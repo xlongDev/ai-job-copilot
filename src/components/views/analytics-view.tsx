@@ -10,28 +10,18 @@ import {
   Trophy,
   Zap,
   Activity,
-  Filter,
   Loader2,
 } from "lucide-react";
-import {
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  PieChart,
+import {  PieChart,
   Pie,
   Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
   Legend,
 } from "recharts";
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import {} from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface Stats {
@@ -95,10 +85,7 @@ export function AnalyticsView() {
     { stage: "Offer", count: stats.offers, percent: stats.applications > 0 ? Math.round((stats.offers / stats.applications) * 100) : 0 },
   ];
 
-  const learningData = [
-    { name: "已完成", value: stats.learningDone },
-    { name: "进行中", value: stats.learningTasks - stats.learningDone },
-  ];
+  
 
   const kpiCards = [
     { label: "ATS 分数", value: stats.atsScore, icon: Target, color: "text-emerald-500" },

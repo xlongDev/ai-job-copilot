@@ -9,11 +9,9 @@ import {
   Crown,
   Building2,
   Sparkles,
-  TrendingUp,
   Receipt,
   Download,
   Coins,
-  Infinity as InfinityIcon,
   Users,
   Loader2,
 } from "lucide-react";
@@ -35,13 +33,13 @@ interface BillingData {
 }
 
 export function BillingView() {
-  const { plan, setPlan, credits, consumeCredits } = useAppStore();
+  const { setPlan } = useAppStore();
   const [data, setData] = useState<BillingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
 
   useEffect(() => {
-    fetchBilling();
+    void fetchBilling();
   }, []);
 
   const fetchBilling = async () => {
@@ -66,7 +64,7 @@ export function BillingView() {
       });
       setPlan(planId as never);
       toast.success(`已切换到 ${data?.plans.find((p) => p.id === planId)?.name} 套餐`);
-      fetchBilling();
+      void fetchBilling();
     } catch {
       toast.error("升级失败");
     }
@@ -82,7 +80,7 @@ export function BillingView() {
       const data = await res.json();
       if (data.success) {
         toast.success(`已购买 ${data.credits} 积分`);
-        fetchBilling();
+        void fetchBilling();
       }
     } catch {
       toast.error("购买失败");
