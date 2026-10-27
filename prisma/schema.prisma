@@ -1,0 +1,217 @@
+// AI Job Copilot — Prisma Schema
+// Full backend data model
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  avatar    String?
+  role      String   @default("user")
+  plan      String   @default("free")
+  credits   Int      @default(50)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resumes       Resume[]
+  applications  Application[]
+  interviews    Interview[]
+  learningTasks LearningTask[]
+  documents     KnowledgeDoc[]
+  chatSessions  ChatSession[]
+  agentRuns     AgentRun[]
+  coverLetters  CoverLetter[]
+  careerAnalyses CareerAnalysis[]
+  teamMembers   TeamMember[]
+  pluginInstalls PluginInstall[]
+}
+
+model Resume {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  content   String
+  format    String   @default("markdown") // markdown, json, text
+  atsScore  Int      @default(0)
+  version   Int      @default(1)
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Application {
+  id        String   @id @default(cuid())
+  userId    String
+  company   String
+  position  String
+  location  String?
+  salary    String?
+  status    String   @default("wishlist") // wishlist, applied, hr, tech1, tech2, hr-final, offer, rejected
+  priority  String   @default("medium") // low, medium, high
+  matchScore Int?
+  jdContent  String?
+  url       String?
+  appliedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Interview {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // hr, tech, project, algo, behavior, system, voice, video
+  questions   String   // JSON array
+  answers     String?  // JSON array
+  scores      String?  // JSON object
+  overallScore Int?
+  duration    Int?     // seconds
+  feedback    String?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model LearningTask {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  category  String   // frontend, backend, system, algo, ai
+  status    String   @default("pending") // pending, in-progress, done
+  duration  Int      @default(60) // minutes
+  scheduledDate DateTime?
+  completedAt  DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model KnowledgeDoc {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  type      String   // resume, project, offer, note, certificate
+  content   String
+  chunks    Int      @default(0)
+  size      Int      @default(0)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ChatSession {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  messages  String   // JSON array of {role, content}
+  provider  String   @default("zai")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AgentRun {
+  id        String   @id @default(cuid())
+  userId    String
+  target    String
+  steps     String   // JSON array of step results
+  status    String   @default("pending") // pending, running, done, error
+  result    String?  // JSON summary
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model InterviewQuestion {
+  id        String   @id @default(cuid())
+  type      String   // hr, tech, project, algo, behavior, system
+  category  String   // sub-category, e.g. "react", "css", "self-intro"
+  question  String
+  hint      String?  // 考察点
+  difficulty String  @default("medium") // easy, medium, hard
+  tags      String?  // comma-separated tags
+  createdAt DateTime @default(now())
+
+  @@index([type])
+  @@index([category])
+}
+
+model CoverLetter {
+  id        String   @id @default(cuid())
+  userId    String
+  resumeId  String?
+  company   String
+  position  String
+  content   String
+  tone      String   @default("professional") // professional, casual, formal
+  language  String   @default("zh")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model CareerAnalysis {
+  id        String   @id @default(cuid())
+  userId    String
+  targetRole String
+  strengths  String   // JSON array
+  weaknesses String   // JSON array
+  roadmap    String   // JSON array of {period, title, goals}
+  recommendations String // JSON array
+  summary    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  userId    String   // owner user id
+  email     String
+  name      String
+  avatar    String   @default("")
+  role      String   @default("member") // owner, admin, member
+  status    String   @default("invited") // active, invited
+  creditsUsed Int    @default(0)
+  lastActive String  @default("")
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model PluginInstall {
+  id        String   @id @default(cuid())
+  userId    String
+  pluginId  String
+  name      String
+  installed Boolean  @default(true)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pluginId])
+  @@index([userId])
+}
