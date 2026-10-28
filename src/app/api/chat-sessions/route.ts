@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import {chatMessageSchema} from "@/lib/schemas";
+
+const chatSessionSchema = z.object({
+  id: z.string().max(100).optional(),
+  title: z.string().max(300).optional(),
+  messages: z.array(chatMessageSchema).max(1000).optional(),
+  provider: z.string().max(40).optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -34,8 +44,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const { id, title, messages, provider } = body;
+    const parsed = await parseBody(req, chatSessionSchema);
+    if (!parsed.ok) return parsed.response;
+    const {id, title, messages, provider} = parsed.data;
 
     if (id) {
       // Update existing session

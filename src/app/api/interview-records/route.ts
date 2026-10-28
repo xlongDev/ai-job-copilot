@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+
+const interviewRecordSchema = z.object({
+  type: z.string().min(1).max(60),
+  questions: z.union([z.array(z.unknown()), z.string()]),
+  answers: z.union([z.array(z.unknown()), z.string()]).optional(),
+  scores: z.union([z.record(z.string(), z.unknown()), z.string()]).optional(),
+  overallScore: z.number().int().min(0).max(100).optional(),
+  duration: z.number().int().min(0).max(86_400).optional(),
+  feedback: z.string().max(100_000).optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -37,8 +50,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const { type, questions, answers, scores, overallScore, duration, feedback } = body;
+    const parsed = await parseBody(req, interviewRecordSchema);
+    if (!parsed.ok) return parsed.response;
+    const {type, questions, answers, scores, overallScore, duration, feedback} = parsed.data;
 
     if (!type || !questions) {
       return NextResponse.json({ error: "Type and questions are required" }, { status: 400 });

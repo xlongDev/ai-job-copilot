@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI } from "@/lib/ai-provider";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import { aiProviderFields } from "@/lib/schemas";
+
+const jdParseSchema = z.object({
+  jdText: z.string().min(1).max(200_000),
+  resumeContent: z.string().max(200_000).optional(),
+  ...aiProviderFields,
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -18,15 +27,9 @@ interface ParsedJD {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const {
-      jdText,
-      resumeContent,
-      provider = "zai",
-      apiKey,
-      model,
-      baseUrl,
-    } = body;
+    const bodyParsed = await parseBody(req, jdParseSchema);
+    if (!bodyParsed.ok) return bodyParsed.response;
+    const {jdText, resumeContent, provider = "zai", apiKey, model, baseUrl} = bodyParsed.data;
 
     if (!jdText || jdText.trim().length < 20) {
       return NextResponse.json(

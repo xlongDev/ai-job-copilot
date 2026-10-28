@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { callAI } from "@/lib/ai-provider";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import { aiProviderFields } from "@/lib/schemas";
+
+const careerAnalysisSchema = z.object({
+  targetRole: z.string().min(1).max(200),
+  resumeContent: z.string().max(200_000).optional(),
+  ...aiProviderFields,
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -26,15 +35,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const {
-      targetRole,
-      resumeContent,
-      provider = "zai",
-      apiKey,
-      model,
-      baseUrl,
-    } = body;
+    const parsed = await parseBody(req, careerAnalysisSchema);
+    if (!parsed.ok) return parsed.response;
+    const {targetRole, resumeContent, provider = "zai", apiKey, model, baseUrl} = parsed.data;
 
     if (!targetRole) {
       return NextResponse.json({ error: "Target role is required" }, { status: 400 });

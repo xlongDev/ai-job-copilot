@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import { aiProviderFields } from "@/lib/schemas";
+
+const promptSchema = z.object({
+  prompt: z.string().min(1).max(20_000),
+  input: z.string().max(200_000).optional(),
+  resumeContent: z.string().max(200_000).optional(),
+  ...aiProviderFields,
+});
 
 export const runtime = "nodejs";
 
@@ -116,16 +126,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const {
-      prompt,
-      input,
-      resumeContent,
-      provider = "zai",
-      apiKey,
-      model,
-      baseUrl,
-    } = body;
+    const parsed = await parseBody(req, promptSchema);
+    if (!parsed.ok) return parsed.response;
+    const {prompt, input, resumeContent, provider = "zai", apiKey, model, baseUrl} = parsed.data;
 
     if (!prompt || !input) {
       return NextResponse.json(

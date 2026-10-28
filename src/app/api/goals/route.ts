@@ -1,4 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+const goalsSchema = z.object({
+  targetRole: z.string().max(200).optional(),
+  targetCompany: z.string().max(200).optional(),
+  weeklyApplyGoal: z.number().int().min(0).max(1000).optional(),
+  monthlyInterviewGoal: z.number().int().min(0).max(1000).optional(),
+  targetSalary: z.string().max(100).optional(),
+  deadline: z.string().max(100).optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -28,8 +39,9 @@ export async function GET() {
 // POST /api/goals — update goals
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { targetRole, targetCompany, weeklyApplyGoal, monthlyInterviewGoal, targetSalary, deadline } = body;
+    const parsed = await parseBody(req, goalsSchema);
+    if (!parsed.ok) return parsed.response;
+    const {targetRole, targetCompany, weeklyApplyGoal, monthlyInterviewGoal, targetSalary, deadline} = parsed.data;
 
     // ponytail: 同上，未落库，仅回显；接真实存储时补 db 写入
     return NextResponse.json({

@@ -50,6 +50,16 @@ CI 在每次 push / PR 到 `main` 时自动跑完整门禁，见 `.github/workfl
   - 未登录访问 API → `401`
   - 未登录访问页面 → `302 /login`
 
+## 入参校验
+
+所有写接口的请求体统一走 zod（`src/lib/validate.ts` 的 `parseBody`），非法输入返回 `400` 并附带字段级错误：
+
+```json
+{ "error": "参数不合法", "details": [{ "path": "company", "message": "..." }] }
+```
+
+共享的 schema 片段在 `src/lib/schemas.ts`（AI 供应商参数、对话消息结构等）。
+
 ## 目录速览
 
 ```

@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+const applicationUpdateSchema = z.object({
+  status: z.enum(["wishlist","applied","hr","tech1","tech2","hr-final","offer","rejected"]).optional(),
+  priority: z.enum(["low","medium","high"]).optional(),
+  matchScore: z.number().int().min(0).max(100).optional(),
+  notes: z.string().max(20_000).optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -9,8 +18,9 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const body = await req.json();
-    const { status, priority, matchScore, notes } = body;
+    const parsed = await parseBody(req, applicationUpdateSchema);
+    if (!parsed.ok) return parsed.response;
+    const {status, priority, matchScore, notes} = parsed.data;
 
     const application = await db.application.update({
       where: { id },

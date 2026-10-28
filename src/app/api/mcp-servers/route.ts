@@ -1,4 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+
+const mcpServerSchema = z.object({
+  id: z.string().min(1).max(100),
+  action: z.string().max(60).optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -31,8 +39,9 @@ export async function GET() {
 // POST /api/mcp-servers — toggle connection
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { id, action } = body;
+    const parsed = await parseBody(req, mcpServerSchema);
+    if (!parsed.ok) return parsed.response;
+    const {id, action} = parsed.data;
 
     if (!id) {
       return NextResponse.json({ error: "Server ID is required" }, { status: 400 });

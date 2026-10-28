@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI } from "@/lib/ai-provider";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import { aiProviderFields } from "@/lib/schemas";
+
+const starGeneratorSchema = z.object({
+  projectDescription: z.string().min(1).max(50_000),
+  role: z.string().max(200).optional(),
+  ...aiProviderFields,
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -15,15 +24,9 @@ interface STARResult {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const {
-      projectDescription,
-      role = "",
-      provider = "zai",
-      apiKey,
-      model,
-      baseUrl,
-    } = body;
+    const parsed = await parseBody(req, starGeneratorSchema);
+    if (!parsed.ok) return parsed.response;
+    const {projectDescription, role = "", provider = "zai", apiKey, model, baseUrl} = parsed.data;
 
     if (!projectDescription || projectDescription.trim().length < 10) {
       return NextResponse.json(

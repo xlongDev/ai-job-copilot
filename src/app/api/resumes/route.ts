@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+const resumeCreateSchema = z.object({
+  title: z.string().min(1).max(200),
+  content: z.string().min(1).max(200_000),
+  format: z.enum(["markdown","json","text"]).optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -23,8 +31,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const { title, content, format = "markdown" } = body;
+    const parsed = await parseBody(req, resumeCreateSchema);
+    if (!parsed.ok) return parsed.response;
+    const {title, content, format} = parsed.data;
 
     if (!title || !content) {
       return NextResponse.json({ error: "Title and content are required" }, { status: 400 });

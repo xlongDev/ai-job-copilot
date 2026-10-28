@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI } from "@/lib/ai-provider";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import { aiProviderFields } from "@/lib/schemas";
+
+const browserAgentSchema = z.object({
+  query: z.string().min(1).max(500),
+  ...aiProviderFields,
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -7,14 +15,9 @@ export const maxDuration = 60;
 // POST /api/browser-agent-run — simulate browser agent workflow
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const {
-      query,
-      provider = "zai",
-      apiKey,
-      model,
-      baseUrl,
-    } = body;
+    const parsed = await parseBody(req, browserAgentSchema);
+    if (!parsed.ok) return parsed.response;
+    const {query, provider = "zai", apiKey, model, baseUrl} = parsed.data;
 
     if (!query) {
       return NextResponse.json({ error: "Query is required" }, { status: 400 });

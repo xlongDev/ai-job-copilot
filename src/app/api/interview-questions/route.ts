@@ -1,21 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI } from "@/lib/ai-provider";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import { aiProviderFields } from "@/lib/schemas";
+
+const interviewQuestionsSchema = z.object({
+  type: z.string().max(60).optional(),
+  role: z.string().max(100).optional(),
+  count: z.number().int().min(1).max(50).optional(),
+  ...aiProviderFields,
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const {
-      type = "tech",
-      role = "前端工程师",
-      count = 5,
-      provider = "zai",
-      apiKey,
-      model,
-      baseUrl,
-    } = body;
+    const parsed = await parseBody(req, interviewQuestionsSchema);
+    if (!parsed.ok) return parsed.response;
+    const {type = "tech", role = "前端工程师", count = 5, provider = "zai", apiKey, model, baseUrl} = parsed.data;
 
     const typeMap: Record<string, string> = {
       hr: "HR 行为面试（自我介绍、职业规划、薪资期望、团队协作）",

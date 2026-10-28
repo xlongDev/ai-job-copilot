@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+const learningUpdateSchema = z.object({
+  status: z.enum(["pending","in-progress","done"]),
+});
 
 export const runtime = "nodejs";
 
@@ -9,8 +15,9 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const body = await req.json();
-    const { status } = body;
+    const parsed = await parseBody(req, learningUpdateSchema);
+    if (!parsed.ok) return parsed.response;
+    const {status} = parsed.data;
 
     const task = await db.learningTask.update({
       where: { id },

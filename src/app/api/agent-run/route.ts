@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { callAI } from "@/lib/ai-provider";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import { aiProviderFields } from "@/lib/schemas";
+
+const agentRunSchema = z.object({
+  target: z.string().min(1).max(500),
+  ...aiProviderFields,  steps: z.array(z.unknown()).optional(),
+  status: z.string().max(40).optional(),
+  result: z.string().max(200_000).optional(),
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -26,14 +36,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const {
-      target,
-      provider = "zai",
-      apiKey,
-      model,
-      baseUrl,
-    } = body;
+    const parsed = await parseBody(req, agentRunSchema);
+    if (!parsed.ok) return parsed.response;
+    const {target, provider = "zai", apiKey, model, baseUrl} = parsed.data;
 
     if (!target) {
       return NextResponse.json({ error: "Target is required" }, { status: 400 });

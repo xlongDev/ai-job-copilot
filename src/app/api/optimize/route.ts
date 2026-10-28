@@ -1,27 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI } from "@/lib/ai-provider";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import { aiProviderFields } from "@/lib/schemas";
+
+const optimizeSchema = z.object({
+  text: z.string().min(1).max(200_000),
+  type: z.string().max(60).default("full"),
+  ...aiProviderFields,
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const {
-      text,
-      type,
-      provider = "zai",
-      apiKey,
-      model,
-      baseUrl,
-    } = body as {
-      text: string;
-      type: "summary" | "experience" | "skill" | "project" | "full";
-      provider?: string;
-      apiKey?: string;
-      model?: string;
-      baseUrl?: string;
-    };
+    const parsed = await parseBody(req, optimizeSchema);
+    if (!parsed.ok) return parsed.response;
+    const {text, type, provider = "zai", apiKey, model, baseUrl} = parsed.data;
 
     const prompts: Record<string, string> = {
       summary:

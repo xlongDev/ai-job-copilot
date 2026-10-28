@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+
+const reportExportSchema = z.object({
+  format: z.enum(["markdown","json","txt","html"]).optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -8,8 +15,9 @@ export const runtime = "nodejs";
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const { format = "markdown" } = body;
+    const parsed = await parseBody(req, reportExportSchema);
+    if (!parsed.ok) return parsed.response;
+    const {format = "markdown"} = parsed.data;
 
     // Gather all data
     const [user, resumes, applications, interviews, learningTasks, knowledgeDocs, agentRuns] = await Promise.all([

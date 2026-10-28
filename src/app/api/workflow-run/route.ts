@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { callAI } from "@/lib/ai-provider";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import { aiProviderFields } from "@/lib/schemas";
+
+const workflowRunSchema = z.object({
+  input: z.string().min(1).max(200_000),
+  ...aiProviderFields,
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -10,14 +18,9 @@ export const maxDuration = 60;
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const {
-      input,
-      provider = "zai",
-      apiKey,
-      model,
-      baseUrl,
-    } = body;
+    const parsed = await parseBody(req, workflowRunSchema);
+    if (!parsed.ok) return parsed.response;
+    const {input, provider = "zai", apiKey, model, baseUrl} = parsed.data;
 
     if (!input) {
       return NextResponse.json({ error: "Input is required" }, { status: 400 });

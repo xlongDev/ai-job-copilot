@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+
+const agentRunCreateSchema = z.object({
+  target: z.string().min(1).max(500),
+  steps: z.array(z.unknown()).optional(),
+  status: z.enum(["pending","running","done","error"]).optional(),
+  result: z.string().max(200_000).optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -22,8 +32,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const { target, steps, status, result } = body;
+    const parsed = await parseBody(req, agentRunCreateSchema);
+    if (!parsed.ok) return parsed.response;
+    const {target, steps, status, result} = parsed.data;
 
     const run = await db.agentRun.create({
       data: {

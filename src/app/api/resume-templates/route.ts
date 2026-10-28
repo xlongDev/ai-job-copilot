@@ -1,4 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+
+const resumeTemplateSchema = z.object({
+  templateId: z.string().max(60).optional(),
+  content: z.string().max(500_000).optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -77,8 +85,9 @@ export async function GET() {
 // POST /api/resume-templates — render resume with template
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { templateId, content } = body;
+    const parsed = await parseBody(req, resumeTemplateSchema);
+    if (!parsed.ok) return parsed.response;
+    const {templateId, content} = parsed.data;
 
     const template = TEMPLATES.find((t) => t.id === templateId);
     if (!template) {

@@ -1,20 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI } from "@/lib/ai-provider";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import { aiProviderFields } from "@/lib/schemas";
+
+const interviewScoreSchema = z.object({
+  question: z.string().min(1).max(10_000),
+  answer: z.string().max(50_000).optional(),
+  ...aiProviderFields,
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const {
-      question,
-      answer,
-      provider = "zai",
-      apiKey,
-      model,
-      baseUrl,
-    } = body;
+    const parsed = await parseBody(req, interviewScoreSchema);
+    if (!parsed.ok) return parsed.response;
+    const {question, answer, provider = "zai", apiKey, model, baseUrl} = parsed.data;
 
     if (!question || !answer) {
       return NextResponse.json(

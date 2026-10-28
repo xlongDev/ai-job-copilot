@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI } from "@/lib/ai-provider";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import { aiProviderFields } from "@/lib/schemas";
+
+const offerAnalysisSchema = z.object({
+  offers: z.array(z.object({
+    company: z.string().min(1).max(200),
+    position: z.string().min(1).max(200),
+    baseSalary: z.number().min(0).max(10_000),
+    bonus: z.number().min(0).max(10_000),
+    location: z.string().max(200),
+    benefits: z.array(z.string().max(500)),
+    pros: z.array(z.string().max(500)),
+    cons: z.array(z.string().max(500)),
+  })).min(1).max(20),
+  ...aiProviderFields,
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
-
-interface OfferData {
-  company: string;
-  position: string;
-  baseSalary: number; // 年薪（万元）
-  bonus: number; // 奖金/股票（万元）
-  location: string;
-  benefits: string[];
-  pros: string[];
-  cons: string[];
-}
 
 interface AnalysisResult {
   totalComp: number;
@@ -41,14 +47,9 @@ export async function GET() {
 // POST /api/offer-analysis — analyze one or multiple offers
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const {
-      offers,
-      provider = "zai",
-      apiKey,
-      model,
-      baseUrl,
-    } = body as { offers: OfferData[]; provider?: string; apiKey?: string; model?: string; baseUrl?: string };
+    const parsed = await parseBody(req, offerAnalysisSchema);
+    if (!parsed.ok) return parsed.response;
+    const {offers, provider = "zai", apiKey, model, baseUrl} = parsed.data;
 
     if (!offers || !Array.isArray(offers) || offers.length === 0) {
       return NextResponse.json(

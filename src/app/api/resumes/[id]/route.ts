@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+const resumeUpdateSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  content: z.string().min(1).max(200_000).optional(),
+  format: z.enum(["markdown","json","text"]).optional(),
+  atsScore: z.number().int().min(0).max(100).optional(),
+  isPrimary: z.boolean().optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -26,8 +36,9 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const body = await req.json();
-    const { title, content, format, atsScore, isPrimary } = body;
+    const parsed = await parseBody(req, resumeUpdateSchema);
+    if (!parsed.ok) return parsed.response;
+    const {title, content, format, atsScore, isPrimary} = parsed.data;
 
     const resume = await db.resume.update({
       where: { id },

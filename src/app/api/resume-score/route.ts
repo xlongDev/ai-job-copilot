@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI } from "@/lib/ai-provider";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import { aiProviderFields } from "@/lib/schemas";
+
+const resumeScoreSchema = z.object({
+  content: z.string().min(1).max(200_000),
+  targetRole: z.string().max(200).optional(),
+  ...aiProviderFields,
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -7,15 +16,9 @@ export const maxDuration = 60;
 // POST /api/resume-score — AI-powered resume scoring with multi-dimensional analysis
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const {
-      content,
-      targetRole = "前端工程师",
-      provider = "zai",
-      apiKey,
-      model,
-      baseUrl,
-    } = body;
+    const parsed = await parseBody(req, resumeScoreSchema);
+    if (!parsed.ok) return parsed.response;
+    const {content, targetRole = "前端工程师", provider = "zai", apiKey, model, baseUrl} = parsed.data;
 
     if (!content || content.trim().length < 50) {
       return NextResponse.json(

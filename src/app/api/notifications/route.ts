@@ -1,5 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUserId } from "@/lib/auth";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+
+const notificationSchema = z.object({
+  action: z.enum(["mark-read","mark-all-read","create"]),
+  id: z.string().max(100).optional(),
+  notification: z.object({
+    type: z.enum(["success","info","warning","error"]).optional(),
+    title: z.string().max(300),
+    message: z.string().max(5000),
+  }).optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -91,8 +104,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const { action, id, notification } = body;
+    const parsed = await parseBody(req, notificationSchema);
+    if (!parsed.ok) return parsed.response;
+    const {action, id, notification} = parsed.data;
 
     const notifications = await getOrCreateNotifications(userId);
 

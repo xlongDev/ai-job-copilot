@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+const userUpdateSchema = z.object({
+  name: z.string().max(100).optional(),
+  avatar: z.string().max(500).optional(),
+  role: z.string().max(200).optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -35,8 +43,9 @@ export async function GET() {
 export async function PUT(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const { name, avatar, role } = body;
+    const parsed = await parseBody(req, userUpdateSchema);
+    if (!parsed.ok) return parsed.response;
+    const {name, avatar, role} = parsed.data;
 
     const user = await db.user.update({
       where: { id: userId },

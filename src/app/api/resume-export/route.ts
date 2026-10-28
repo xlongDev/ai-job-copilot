@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+
+const resumeExportSchema = z.object({
+  resumeId: z.string().min(1).max(100),
+  format: z.enum(["markdown","json","txt","html"]),
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -9,8 +17,9 @@ export const maxDuration = 30;
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const { resumeId, format } = body as { resumeId: string; format: "markdown" | "json" | "txt" | "html" };
+    const parsed = await parseBody(req, resumeExportSchema);
+    if (!parsed.ok) return parsed.response;
+    const {resumeId, format} = parsed.data;
 
     if (!resumeId || !format) {
       return NextResponse.json({ error: "Resume ID and format are required" }, { status: 400 });

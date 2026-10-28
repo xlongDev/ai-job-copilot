@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+
+const billingSchema = z.object({
+  action: z.enum(["upgrade","buy-credits"]),
+  planId: z.string().max(60).optional(),
+  packId: z.string().max(60).optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -78,8 +87,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const { action, planId, packId } = body;
+    const parsed = await parseBody(req, billingSchema);
+    if (!parsed.ok) return parsed.response;
+    const {action, planId, packId} = parsed.data;
 
     if (action === "upgrade" && planId) {
       await db.user.update({

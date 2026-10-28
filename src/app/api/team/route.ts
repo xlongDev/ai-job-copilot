@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+const teamMemberSchema = z.object({
+  email: z.string().email().max(200),
+  name: z.string().min(1).max(100),
+  role: z.enum(["owner","admin","member"]).optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -40,8 +48,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const { email, name, role = "member" } = body;
+    const parsed = await parseBody(req, teamMemberSchema);
+    if (!parsed.ok) return parsed.response;
+    const {email, name, role} = parsed.data;
 
     if (!email || !name) {
       return NextResponse.json({ error: "Email and name are required" }, { status: 400 });

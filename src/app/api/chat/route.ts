@@ -1,27 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callAI, type ChatMessage } from "@/lib/ai-provider";
+import { callAI } from "@/lib/ai-provider";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import { aiProviderFields, chatMessageSchema } from "@/lib/schemas";
+
+const chatSchema = z.object({
+  messages: z.array(chatMessageSchema).min(1).max(200),
+  context: z.string().max(200_000).optional(),
+  mode: z.string().max(40).optional(),
+  ...aiProviderFields,
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const {
-      messages,
-      context,
-      provider = "zai",
-      apiKey,
-      model,
-      baseUrl,
-    } = body as {
-      messages: ChatMessage[];
-      context?: string;
-      provider?: string;
-      apiKey?: string;
-      model?: string;
-      baseUrl?: string;
-    };
+    const parsed = await parseBody(req, chatSchema);
+    if (!parsed.ok) return parsed.response;
+    const {messages, context, provider = "zai", apiKey, model, baseUrl} = parsed.data;
 
     const systemPrompt = `你是 AI Job Copilot，一个专业的 AI 求职助手。你的任务是帮助用户优化简历、准备面试、分析岗位匹配度、提供职业建议。
 

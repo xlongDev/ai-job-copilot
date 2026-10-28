@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI } from "@/lib/ai-provider";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+
+const testProviderSchema = z.object({
+  provider: z.string().min(1).max(40),
+  apiKey: z.string().max(500).optional(),
+  model: z.string().max(200).optional(),
+  baseUrl: z.string().max(500).optional(),
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -7,8 +17,9 @@ export const maxDuration = 30;
 // POST /api/test-provider — test AI provider connection
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { provider, apiKey, model, baseUrl } = body;
+    const parsed = await parseBody(req, testProviderSchema);
+    if (!parsed.ok) return parsed.response;
+    const {provider, apiKey, model, baseUrl} = parsed.data;
 
     if (!provider) {
       return NextResponse.json({ error: "Provider is required" }, { status: 400 });

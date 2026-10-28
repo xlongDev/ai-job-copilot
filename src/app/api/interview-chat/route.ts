@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI } from "@/lib/ai-provider";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+import { aiProviderFields, chatMessageSchema } from "@/lib/schemas";
+
+const interviewChatSchema = z.object({
+  messages: z.array(chatMessageSchema).min(1).max(200),
+  interviewType: z.string().max(60).optional(),
+  role: z.string().max(100).optional(),
+  ...aiProviderFields,
+});
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -12,16 +22,9 @@ interface ChatMessage {
 // POST /api/interview-chat — AI interviewer with multi-turn dialogue
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const {
-      messages,
-      interviewType = "tech",
-      role = "前端工程师",
-      provider = "zai",
-      apiKey,
-      model,
-      baseUrl,
-    } = body;
+    const parsed = await parseBody(req, interviewChatSchema);
+    if (!parsed.ok) return parsed.response;
+    const {messages, interviewType = "tech", role = "前端工程师", provider = "zai", apiKey, model, baseUrl} = parsed.data;
 
     const typeMap: Record<string, string> = {
       hr: "HR 行为面试官",

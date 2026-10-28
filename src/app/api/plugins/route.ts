@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { parseBody } from "@/lib/validate";
+import { z } from "zod";
+
+
+const pluginSchema = z.object({
+  pluginId: z.string().min(1).max(100),
+  name: z.string().max(200).optional(),
+  action: z.enum(["install","uninstall"]).optional(),
+});
 
 export const runtime = "nodejs";
 
@@ -45,8 +54,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const userId = await getCurrentUserId();
-    const body = await req.json();
-    const { pluginId, name, action } = body;
+    const parsed = await parseBody(req, pluginSchema);
+    if (!parsed.ok) return parsed.response;
+    const {pluginId, name, action} = parsed.data;
 
     if (!pluginId) {
       return NextResponse.json({ error: "Plugin ID is required" }, { status: 400 });
