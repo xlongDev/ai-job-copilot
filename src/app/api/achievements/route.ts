@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
@@ -28,7 +28,7 @@ const ACHIEVEMENTS = [
 // GET /api/achievements — list all achievements with unlock status
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
 
     // Get user stats
     const [resumes, applications, interviews, offers, learningTasks, agentRuns, chatSessions] = await Promise.all([

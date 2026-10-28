@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, Bell, Command, Sun, Moon, Globe, Plus, Settings, Check } from "lucide-react";
+import { Search, Bell, Command, Sun, Moon, Globe, Plus, Settings, Check, LogOut } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
@@ -195,6 +195,20 @@ export function Topbar() {
       <Button size="sm" className="gap-2">
         <Plus className="h-4 w-4" />
         新建
+      </Button>
+
+      {/* Logout */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-9 w-9"
+        title="退出登录"
+        onClick={async () => {
+          await fetch("/api/auth/logout", { method: "POST" });
+          window.location.href = "/login";
+        }}
+      >
+        <LogOut className="h-4 w-4" />
       </Button>
 
       <NotificationDrawer open={notifOpen} onOpenChange={setNotifOpen} />

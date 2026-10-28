@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const applications = await db.application.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -20,7 +20,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const body = await req.json();
     const { company, position, location, salary, status, priority, matchScore, url } = body;
 

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 // GET /api/resume-compare?ids=id1,id2 — compare multiple resumes
 export async function GET(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const { searchParams } = new URL(req.url);
     const ids = searchParams.get("ids");
 

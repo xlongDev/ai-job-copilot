@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 // GET /api/calendar?month=2026-01 — get calendar events for a month
 export async function GET(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const { searchParams } = new URL(req.url);
     const monthParam = searchParams.get("month"); // format: 2026-01
 

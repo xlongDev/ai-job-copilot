@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -8,7 +8,7 @@ export const maxDuration = 30;
 // POST /api/resume-upload — upload and parse resume file
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
 

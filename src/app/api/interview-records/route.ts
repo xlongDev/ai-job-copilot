@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 // GET /api/interview-records — list interview records
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const interviews = await db.interview.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -36,7 +36,7 @@ export async function GET() {
 // POST /api/interview-records — save interview record
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const body = await req.json();
     const { type, questions, answers, scores, overallScore, duration, feedback } = body;
 

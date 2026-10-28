@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 // GET /api/team — list team members
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const members = await db.teamMember.findMany({
       where: { userId },
       orderBy: { createdAt: "asc" },
@@ -39,7 +39,7 @@ export async function GET() {
 // POST /api/team — invite a team member
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const body = await req.json();
     const { email, name, role = "member" } = body;
 

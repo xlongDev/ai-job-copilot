@@ -17,6 +17,8 @@ jobs:
     env:
       # 用绝对路径：standalone 产物的 cwd 与仓库根不同，相对路径会解析到别处
       DATABASE_URL: "file:${{ github.workspace }}/prisma/dev.db"
+      # 构建期会被内联进 Edge(proxy) bundle，部署时必须与运行期保持一致
+      AUTH_SECRET: "ci-${{ github.run_id }}-${{ github.run_attempt }}-not-for-production"
       NEXT_TELEMETRY_DISABLED: "1"
       CI: "true"
 

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 // GET /api/chat-sessions — list all chat sessions
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const sessions = await db.chatSession.findMany({
       where: { userId },
       orderBy: { updatedAt: "desc" },
@@ -33,7 +33,7 @@ export async function GET() {
 // POST /api/chat-sessions — create or update a chat session
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const body = await req.json();
     const { id, title, messages, provider } = body;
 

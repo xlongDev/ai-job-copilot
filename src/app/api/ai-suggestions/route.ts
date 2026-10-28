@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 import { callAI } from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
@@ -9,7 +9,7 @@ export const maxDuration = 60;
 // GET /api/ai-suggestions — generate personalized AI suggestions based on user data
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
 
     const [resumes, applications, interviews, learningTasks, knowledgeDocs] = await Promise.all([
       db.resume.findMany({ where: { userId }, select: { atsScore: true, title: true, updatedAt: true } }),

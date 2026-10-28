@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 import { callAI } from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
@@ -9,7 +9,7 @@ export const maxDuration = 60;
 // GET /api/career-analysis — list user's career analyses
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const analyses = await db.careerAnalysis.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -25,7 +25,7 @@ export async function GET() {
 // POST /api/career-analysis — generate career analysis using AI
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const body = await req.json();
     const {
       targetRole,

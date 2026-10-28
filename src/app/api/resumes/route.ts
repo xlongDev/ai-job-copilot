@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 // GET /api/resumes — list all resumes for user
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const resumes = await db.resume.findMany({
       where: { userId },
       orderBy: { updatedAt: "desc" },
@@ -22,7 +22,7 @@ export async function GET() {
 // POST /api/resumes — create a new resume
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const body = await req.json();
     const { title, content, format = "markdown" } = body;
 

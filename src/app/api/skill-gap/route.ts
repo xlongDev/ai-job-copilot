@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 import { callAI } from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
@@ -17,7 +17,7 @@ interface SkillGapResult {
 
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const body = await req.json();
     const {
       targetRole,

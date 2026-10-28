@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
@@ -23,7 +23,7 @@ const PLUGIN_CATALOG = [
 // GET /api/plugins — list all plugins with install status
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const installs = await db.pluginInstall.findMany({
       where: { userId, installed: true },
     });
@@ -44,7 +44,7 @@ export async function GET() {
 // POST /api/plugins — install/uninstall a plugin
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const body = await req.json();
     const { pluginId, name, action } = body;
 

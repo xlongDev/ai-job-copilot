@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 import { callAI } from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
@@ -9,7 +9,7 @@ export const maxDuration = 60;
 // GET /api/cover-letter — list user's cover letters
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const letters = await db.coverLetter.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -24,7 +24,7 @@ export async function GET() {
 // POST /api/cover-letter — generate a cover letter using AI
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const body = await req.json();
     const {
       company,

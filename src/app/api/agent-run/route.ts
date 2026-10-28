@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 import { callAI } from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
@@ -9,7 +9,7 @@ export const maxDuration = 60;
 // GET /api/agent-run — list agent runs
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const runs = await db.agentRun.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -25,7 +25,7 @@ export async function GET() {
 // POST /api/agent-run — execute AI Job Agent workflow
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const body = await req.json();
     const {
       target,

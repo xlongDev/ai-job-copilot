@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
@@ -77,7 +77,7 @@ async function getOrCreateNotifications(userId: string): Promise<Notification[]>
 // GET /api/notifications
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const notifications = await getOrCreateNotifications(userId);
     const unreadCount = notifications.filter((n) => !n.read).length;
     return NextResponse.json({ notifications, unreadCount });
@@ -90,7 +90,7 @@ export async function GET() {
 // POST /api/notifications — mark as read / create
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const body = await req.json();
     const { action, id, notification } = body;
 

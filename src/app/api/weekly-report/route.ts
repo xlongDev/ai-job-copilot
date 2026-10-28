@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 import { callAI } from "@/lib/ai-provider";
 
 export const runtime = "nodejs";
@@ -9,7 +9,7 @@ export const maxDuration = 60;
 // GET /api/weekly-report — generate weekly report
 export async function GET(req: Request) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const { searchParams } = new URL(req.url);
     const useAI = searchParams.get("ai") === "true";
 

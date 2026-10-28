@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 // GET /api/tracker-stats — aggregated tracker statistics
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const apps = await db.application.findMany({ where: { userId } });
 
     const total = apps.length;

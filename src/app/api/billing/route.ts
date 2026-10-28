@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
@@ -51,7 +51,7 @@ const CREDIT_PACKS = [
 // GET /api/billing — get billing info
 export async function GET() {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const user = await db.user.findUnique({ where: { id: userId } });
 
     if (!user) {
@@ -77,7 +77,7 @@ export async function GET() {
 // POST /api/billing — upgrade plan or buy credits
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const body = await req.json();
     const { action, planId, packId } = body;
 

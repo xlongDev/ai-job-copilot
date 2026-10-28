@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getDemoUserId } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -8,7 +8,7 @@ export const maxDuration = 30;
 // POST /api/resume-export — export resume in different formats
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getDemoUserId();
+    const userId = await getCurrentUserId();
     const body = await req.json();
     const { resumeId, format } = body as { resumeId: string; format: "markdown" | "json" | "txt" | "html" };
 
