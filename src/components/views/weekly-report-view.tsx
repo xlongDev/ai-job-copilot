@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   FileText,
   Loader2,
@@ -39,12 +39,8 @@ export function WeeklyReportView() {
   const [loading, setLoading] = useState(true);
   const [generatingAI, setGeneratingAI] = useState(false);
 
-  useEffect(() => {
-    void fetchReport();
-  }, []);
 
-  const fetchReport = async () => {
-    setLoading(true);
+  const fetchReport = useCallback(async () => {
     try {
       const res = await fetch("/api/weekly-report");
       const data = await res.json();
@@ -55,7 +51,10 @@ export function WeeklyReportView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    void fetchReport();
+  }, [fetchReport]);
 
   const generateAI = async () => {
     setGeneratingAI(true);

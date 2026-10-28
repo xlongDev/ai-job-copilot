@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   KanbanSquare,
   Plus,
@@ -72,13 +72,7 @@ export function TrackerView() {
   const [editMode, setEditMode] = useState(false);
   const [editApp, setEditApp] = useState<Partial<Application>>({});
 
-  useEffect(() => {
-    void fetchApps();
-    void fetchStats();
-  }, []);
-
-  const fetchApps = async () => {
-    setLoading(true);
+  const fetchApps = useCallback(async () => {
     try {
       const res = await fetch("/api/applications");
       const data = await res.json();
@@ -88,9 +82,9 @@ export function TrackerView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const res = await fetch("/api/tracker-stats");
       const data = await res.json();
@@ -107,7 +101,12 @@ export function TrackerView() {
     } catch {
       // silent fail
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    void fetchApps();
+    void fetchStats();
+  }, [fetchApps, fetchStats]);
 
   const handleDragStart = (id: string) => setDraggedId(id);
 

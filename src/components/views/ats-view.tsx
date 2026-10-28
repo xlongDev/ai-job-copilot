@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   ScanLine,
   CheckCircle2,
@@ -47,12 +47,8 @@ export function ATSView() {
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
 
-  useEffect(() => {
-    void runScan();
-  }, []);
 
-  const runScan = async () => {
-    setLoading(true);
+  const runScan = useCallback(async () => {
     setScanning(true);
     try {
       // Fetch the primary resume
@@ -96,7 +92,10 @@ export function ATSView() {
       setLoading(false);
       setScanning(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    void runScan();
+  }, [runScan]);
 
   const radarData = result?.dimensions.map((d) => ({
     subject: d.name,

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useCallback } from "react";
+import {useState, useEffect, useCallback} from "react";
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -51,7 +51,7 @@ const monthNames = ["一月", "二月", "三月", "四月", "五月", "六月", 
 const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
 
 export function CalendarView() {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(() => new Date());
   const [events, setEvents] = useState<Record<string, CalendarEvent[]>>({});
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -61,7 +61,6 @@ export function CalendarView() {
   const monthStr = `${year}-${String(month + 1).padStart(2, "0")}`;
 
   const fetchCalendar = useCallback(async () => {
-    setLoading(true);
     try {
       const res = await fetch(`/api/calendar?month=${monthStr}`);
       const data = await res.json();
@@ -92,7 +91,8 @@ export function CalendarView() {
   const remaining = (7 - (days.length % 7)) % 7;
   for (let i = 0; i < remaining; i++) days.push(null);
 
-  const today = new Date();
+  // 挂载时刻的“今天”，跨天不刷新（日历场景足够）
+  const [today] = useState(() => new Date());
   const isToday = (day: number) =>
     today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
 

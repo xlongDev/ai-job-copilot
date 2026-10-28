@@ -75,7 +75,6 @@ export function ResumeView() {
   }, [content, selectedResume]);
 
   const fetchResumes = useCallback(async () => {
-    setLoading(true);
     try {
       const res = await fetch("/api/resumes");
       const data = await res.json();

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   CreditCard,
   Check,
@@ -38,12 +38,8 @@ export function BillingView() {
   const [loading, setLoading] = useState(true);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
 
-  useEffect(() => {
-    void fetchBilling();
-  }, []);
 
-  const fetchBilling = async () => {
-    setLoading(true);
+  const fetchBilling = useCallback(async () => {
     try {
       const res = await fetch("/api/billing");
       const d = await res.json();
@@ -53,7 +49,10 @@ export function BillingView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    void fetchBilling();
+  }, [fetchBilling]);
 
   const handleUpgrade = async (planId: string) => {
     try {

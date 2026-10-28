@@ -107,6 +107,33 @@ const DEFAULT_QUESTIONS = [
   "你对 React 18 的并发特性有什么理解？",
 ];
 
+// Web Speech API 未包含在 TS DOM lib 中，这里补最小类型
+interface SpeechRecognitionAlternative {
+  transcript: string;
+}
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  0: SpeechRecognitionAlternative;
+}
+interface SpeechRecognitionEvent {
+  resultIndex: number;
+  results: { length: number; [index: number]: SpeechRecognitionResult };
+}
+interface SpeechRecognitionErrorEvent {
+  error: string;
+}
+interface SpeechRecognitionInstance {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  start(): void;
+  stop(): void;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+}
+type SpeechRecognitionCtor = new () => SpeechRecognitionInstance;
+
 export function VoiceInterviewView() {
   const aiConfig = useAIConfig();
   const [phase, setPhase] = useState<Phase>("idle");
@@ -119,7 +146,7 @@ export function VoiceInterviewView() {
   const [questions, setQuestions] = useState<string[]>(DEFAULT_QUESTIONS);
   const [interimText, setInterimText] = useState("");
 
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -144,7 +171,13 @@ export function VoiceInterviewView() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioWindow = window as Window & { webkitAudioContext?: typeof AudioContext };
+      const AudioCtor = window.AudioContext ?? audioWindow.webkitAudioContext;
+      if (!AudioCtor) {
+        toast.error("浏览器不支持 Web Audio API");
+        return;
+      }
+      const audioContext = new AudioCtor();
       audioContextRef.current = audioContext;
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
@@ -180,7 +213,11 @@ export function VoiceInterviewView() {
 
   // Speech recognition setup
   const startListening = useCallback(async () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const speechWindow = window as Window & {
+      SpeechRecognition?: SpeechRecognitionCtor;
+      webkitSpeechRecognition?: SpeechRecognitionCtor;
+    };
+    const SpeechRecognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       toast.error("浏览器不支持语音识别", { description: "请使用 Chrome 或 Edge 浏览器" });
       return;
@@ -196,7 +233,7 @@ export function VoiceInterviewView() {
     fullTextRef.current = "";
     listenStartRef.current = Date.now();
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       let interim = "";
       let final = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -213,7 +250,7 @@ export function VoiceInterviewView() {
       setInterimText(interim);
     };
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error("Speech recognition error:", event.error);
       if (event.error === "not-allowed") {
         toast.error("请允许麦克风权限");
@@ -312,7 +349,7 @@ export function VoiceInterviewView() {
       });
       const data = await res.json();
       if (data.questions && data.questions.length > 0) {
-        setQuestions(data.questions.map((q: any) => q.question || q));
+        setQuestions(data.questions.map((q: { question?: string } | string) => (typeof q === "string" ? q : q.question || "")));
       }
     } catch {
       // Use default questions
@@ -321,7 +358,7 @@ export function VoiceInterviewView() {
     void askQuestion(0);
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = useCallback(() => {
     if (currentQ < questions.length - 1) {
       const next = currentQ + 1;
       setCurrentQ(next);
@@ -329,7 +366,7 @@ export function VoiceInterviewView() {
     } else {
       setPhase("done");
     }
-  };
+  }, [currentQ, questions, askQuestion]);
 
   // When AI finishes "thinking", go to next question
   useEffect(() => {

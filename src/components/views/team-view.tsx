@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Users,
   UserPlus,
@@ -49,12 +49,8 @@ export function TeamView() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
 
-  useEffect(() => {
-    void fetchMembers();
-  }, []);
 
-  const fetchMembers = async () => {
-    setLoading(true);
+  const fetchMembers = useCallback(async () => {
     try {
       const res = await fetch("/api/team");
       const data = await res.json();
@@ -64,7 +60,10 @@ export function TeamView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    void fetchMembers();
+  }, [fetchMembers]);
 
   const copyInviteLink = () => {
     void navigator.clipboard?.writeText("https://aijobcopilot.com/invite/team-abc123");

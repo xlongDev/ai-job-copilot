@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Trophy,
   FileText,
@@ -72,12 +72,8 @@ export function AchievementsView() {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    void fetchAchievements();
-  }, []);
 
-  const fetchAchievements = async () => {
-    setLoading(true);
+  const fetchAchievements = useCallback(async () => {
     try {
       const res = await fetch("/api/achievements");
       const data = await res.json();
@@ -92,7 +88,10 @@ export function AchievementsView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    void fetchAchievements();
+  }, [fetchAchievements]);
 
   if (loading) {
     return (

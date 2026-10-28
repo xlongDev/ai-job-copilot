@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Sparkles,
   Search,
@@ -58,12 +58,8 @@ export function PromptLibraryView() {
   const [result, setResult] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    void fetchPrompts();
-  }, []);
 
-  const fetchPrompts = async () => {
-    setLoading(true);
+  const fetchPrompts = useCallback(async () => {
     try {
       const res = await fetch("/api/prompts");
       const data = await res.json();
@@ -74,7 +70,10 @@ export function PromptLibraryView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    void fetchPrompts();
+  }, [fetchPrompts]);
 
   const filtered = prompts.filter((p) => {
     const matchCat = activeCategory === "全部" || p.category === activeCategory;

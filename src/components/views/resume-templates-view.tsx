@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Loader2,
   Check,
@@ -40,12 +40,8 @@ export function ResumeTemplatesView() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string | null>(null);
 
-  useEffect(() => {
-    void fetchTemplates();
-  }, []);
 
-  const fetchTemplates = async () => {
-    setLoading(true);
+  const fetchTemplates = useCallback(async () => {
     try {
       const res = await fetch("/api/resume-templates");
       const data = await res.json();
@@ -55,7 +51,10 @@ export function ResumeTemplatesView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    void fetchTemplates();
+  }, [fetchTemplates]);
 
   const apply = (template: Template) => {
     setSelected(template.id);

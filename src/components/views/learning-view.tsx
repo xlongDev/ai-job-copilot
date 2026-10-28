@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   GraduationCap,
   CheckCircle2,
@@ -65,11 +65,8 @@ export function LearningView() {
   const [tasks, setTasks] = useState<LearningTask[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    void fetchTasks();
-  }, []);
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       const res = await fetch("/api/learning");
       const data = await res.json();
@@ -79,7 +76,10 @@ export function LearningView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    void fetchTasks();
+  }, [fetchTasks]);
 
   const toggleTask = async (task: LearningTask) => {
     const newStatus = task.status === "done" ? "pending" : "done";

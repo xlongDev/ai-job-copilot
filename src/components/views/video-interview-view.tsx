@@ -279,7 +279,7 @@ export function VideoInterviewView() {
       });
       const data = await res.json();
       if (data.questions && data.questions.length > 0) {
-        setQuestions(data.questions.map((q: any) => q.question || q));
+        setQuestions(data.questions.map((q: { question?: string } | string) => (typeof q === "string" ? q : q.question || "")));
       }
     } catch {
       // Use defaults

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Database,
   Upload,
@@ -39,12 +39,8 @@ export function RagView() {
   const [results, setResults] = useState<{ doc: string; snippet: string; score: number }[] | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    void fetchDocs();
-  }, []);
 
-  const fetchDocs = async () => {
-    setLoading(true);
+  const fetchDocs = useCallback(async () => {
     try {
       const res = await fetch("/api/knowledge");
       const data = await res.json();
@@ -54,7 +50,10 @@ export function RagView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    void fetchDocs();
+  }, [fetchDocs]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

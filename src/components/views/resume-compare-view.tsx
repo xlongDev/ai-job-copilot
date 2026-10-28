@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   GitCompare,
   Loader2,
@@ -50,12 +50,8 @@ export function ResumeCompareView() {
     longestContent: ComparisonItem;
   } | null>(null);
 
-  useEffect(() => {
-    void fetchResumes();
-  }, []);
 
-  const fetchResumes = async () => {
-    setLoading(true);
+  const fetchResumes = useCallback(async () => {
     try {
       const res = await fetch("/api/resume-compare");
       const data = await res.json();
@@ -65,7 +61,10 @@ export function ResumeCompareView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    void fetchResumes();
+  }, [fetchResumes]);
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {

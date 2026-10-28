@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Sheet,
@@ -54,14 +54,8 @@ export function NotificationDrawer({ open, onOpenChange }: NotificationDrawerPro
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (open) {
-      void fetchNotifications();
-    }
-  }, [open]);
 
-  const fetchNotifications = async () => {
-    setLoading(true);
+  const fetchNotifications = useCallback(async () => {
     try {
       const res = await fetch("/api/notifications");
       const data = await res.json();
@@ -71,7 +65,12 @@ export function NotificationDrawer({ open, onOpenChange }: NotificationDrawerPro
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    if (open) {
+      void fetchNotifications();
+    }
+  }, [open, fetchNotifications]);
 
   const markAsRead = async (id: string) => {
     setNotifications((prev) =>

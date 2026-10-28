@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Mic,
   Video,
@@ -71,12 +71,8 @@ export function InterviewRecordsView() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<InterviewRecord | null>(null);
 
-  useEffect(() => {
-    void fetchRecords();
-  }, []);
 
-  const fetchRecords = async () => {
-    setLoading(true);
+  const fetchRecords = useCallback(async () => {
     try {
       const res = await fetch("/api/interview-records");
       const data = await res.json();
@@ -86,7 +82,10 @@ export function InterviewRecordsView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    void fetchRecords();
+  }, [fetchRecords]);
 
   // Chart data: score trend over time
   const chartData = records

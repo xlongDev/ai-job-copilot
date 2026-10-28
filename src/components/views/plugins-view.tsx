@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Plug,
   Search,
@@ -43,12 +43,8 @@ export function PluginsView() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    void fetchPlugins();
-  }, []);
 
-  const fetchPlugins = async () => {
-    setLoading(true);
+  const fetchPlugins = useCallback(async () => {
     try {
       const res = await fetch("/api/plugins");
       const data = await res.json();
@@ -59,7 +55,10 @@ export function PluginsView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    void fetchPlugins();
+  }, [fetchPlugins]);
 
   const toggleInstall = async (plugin: Plugin) => {
     try {

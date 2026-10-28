@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Plug,
   Github,
@@ -55,12 +55,8 @@ export function McpView() {
   const [servers, setServers] = useState<McpServer[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    void fetchServers();
-  }, []);
 
-  const fetchServers = async () => {
-    setLoading(true);
+  const fetchServers = useCallback(async () => {
     try {
       const res = await fetch("/api/mcp-servers");
       const data = await res.json();
@@ -70,7 +66,10 @@ export function McpView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    void fetchServers();
+  }, [fetchServers]);
 
   const toggleConnection = async (id: string) => {
     try {
