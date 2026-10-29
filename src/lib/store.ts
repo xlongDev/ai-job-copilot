@@ -35,12 +35,6 @@ interface AppState {
   resumeText: string;
   setResumeText: (t: string) => void;
 
-  // SaaS: credits & plan
-  credits: number;
-  plan: "free" | "pro" | "team" | "enterprise";
-  setPlan: (p: AppState["plan"]) => void;
-  consumeCredits: (n: number) => void;
-
   // Notifications
   notifications: number;
 }
@@ -84,11 +78,6 @@ export const useAppStore = create<AppState>()(
       resumeText: "",
       setResumeText: (t) => set({ resumeText: t }),
 
-      credits: 1250,
-      plan: "pro",
-      setPlan: (p) => set({ plan: p }),
-      consumeCredits: (n) => set((s) => ({ credits: Math.max(0, s.credits - n) })),
-
       notifications: 3,
     }),
     {
@@ -98,8 +87,6 @@ export const useAppStore = create<AppState>()(
         providerKeys: s.providerKeys,
         language: s.language,
         sidebarCollapsed: s.sidebarCollapsed,
-        credits: s.credits,
-        plan: s.plan,
       }),
     }
   )

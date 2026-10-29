@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
-import { callAI } from "@/lib/ai-provider";
+import { callAIWithCredits } from "@/lib/ai-metering";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -70,7 +70,7 @@ export async function GET(req: Request) {
 
 请生成一份简洁的周报总结，包括：1. 本周亮点 2. 需要改进的地方 3. 下周建议。控制在 200 字以内。`;
 
-      const result = await callAI({
+      const resultMetered = await callAIWithCredits({ userId, feature: "weekly-report" }, {
         messages: [
           { role: "system", content: "你是求职顾问，请根据用户本周的求职活动数据生成周报总结。" },
           { role: "user", content: summaryText },
@@ -79,6 +79,8 @@ export async function GET(req: Request) {
         temperature: 0.5,
         maxTokens: 500,
       });
+      if (!resultMetered.ok) return resultMetered.response;
+      const result = resultMetered.result;
       aiSummary = result.content;
     }
 

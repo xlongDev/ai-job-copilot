@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
-import { callAI } from "@/lib/ai-provider";
+import { callAIWithCredits } from "@/lib/ai-metering";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -126,7 +126,7 @@ export async function GET() {
 
     // AI-powered suggestion (optional, uses AI)
     try {
-      const aiResult = await callAI({
+      const aiResultMetered = await callAIWithCredits({ userId, feature: "ai-suggestions" }, {
         messages: [
           {
             role: "system",
@@ -141,6 +141,8 @@ export async function GET() {
         temperature: 0.5,
         maxTokens: 100,
       });
+      if (!aiResultMetered.ok) return aiResultMetered.response;
+      const aiResult = aiResultMetered.result;
 
       if (aiResult.content) {
         suggestions.unshift({

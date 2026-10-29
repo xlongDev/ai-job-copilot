@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callAI } from "@/lib/ai-provider";
+import { callAIWithCredits } from "@/lib/ai-metering";
 import { parseBody } from "@/lib/validate";
 import { z } from "zod";
 import { aiProviderFields, chatMessageSchema } from "@/lib/schemas";
+import { getCurrentUserId } from "@/lib/auth";
 
 const interviewChatSchema = z.object({
   messages: z.array(chatMessageSchema).min(1).max(200),
@@ -51,7 +52,8 @@ export async function POST(req: NextRequest) {
 
 请开始面试，先做一个简短的自我介绍并问第一个问题。`;
 
-    const result = await callAI({
+    const userId = await getCurrentUserId();
+    const resultMetered = await callAIWithCredits({ userId, feature: "interview-chat" }, {
       messages: [
         { role: "system", content: systemPrompt },
         ...messages.map((m: ChatMessage) => ({ role: m.role, content: m.content })),
@@ -63,6 +65,8 @@ export async function POST(req: NextRequest) {
       temperature: 0.7,
       maxTokens: 800,
     });
+    if (!resultMetered.ok) return resultMetered.response;
+    const result = resultMetered.result;
 
     return NextResponse.json({
       content: result.content,

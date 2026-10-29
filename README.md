@@ -75,6 +75,20 @@ CI 在每次 push / PR 到 `main` 时自动跑完整门禁，见 `.github/workfl
 
 共享的 schema 片段在 `src/lib/schemas.ts`（AI 供应商参数、对话消息结构等）。
 
+## 积分与配额
+
+`users.credits` 是唯一真源。之前 credits / plan 存在 localStorage 的 zustand store 里，
+前端改个数字就能显示 99999，服务端既不扣减也不校验。
+
+- 侧栏的套餐与额度读 `/api/user`，不再读 localStorage（`store` 已移除 `credits` / `plan`）
+- 平台侧 LLM 调用统一走 `src/lib/ai-metering.ts` 的 `callAIWithCredits`
+  - 事务内原子扣减，余额不足返回 `402 INSUFFICIENT_CREDITS`
+  - LLM 调用失败会原额退还
+  - 用户自带 API Key（`params.apiKey` 非空）时不消耗平台额度
+- 计费单位：1 credit / 次 LLM 调用（按功能分层，见 `AI_FEATURE_COST`）
+- `/api/billing` 的 `planId` 按枚举校验（此前任意字符串即可把自己改成 enterprise），
+  买积分改为原子自增，不再「读余额 → 加 → 写回」
+
 ## 目录速览
 
 ```
@@ -90,9 +104,10 @@ src/
     layout/       AppShell / Sidebar / Topbar / 命令面板
     shared/       玻璃拟态卡片、骨架屏、错误边界等
   lib/
-    views.ts      视图路由单一数据源
-    validate.ts   zod 入参校验
-    schemas.ts    共享 schema 片段
+    views.ts        视图路由单一数据源
+    validate.ts     zod 入参校验
+    schemas.ts      共享 schema 片段
+    ai-metering.ts  平台侧 LLM 调用的积分计量
     db / auth / session-token / ai-provider / store
   proxy.ts        请求入口鉴权
 prisma/           schema + seed

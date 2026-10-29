@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
-import { callAI } from "@/lib/ai-provider";
+import { callAIWithCredits } from "@/lib/ai-metering";
 import { parseBody } from "@/lib/validate";
 import { z } from "zod";
 import { aiProviderFields } from "@/lib/schemas";
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Execute Resume Agent
-    const resumeResult = await callAI({
+    const resumeResultMetered = await callAIWithCredits({ userId, feature: "workflow-run" }, {
       messages: [
         { role: "system", content: "你是 Resume Agent。简要分析简历（2句话）。" },
         { role: "user", content: `简历：${resume?.content?.slice(0, 300) || input}` },
@@ -59,11 +59,13 @@ export async function POST(req: NextRequest) {
       provider, apiKey, model, baseUrl,
       temperature: 0.5, maxTokens: 200,
     });
+    if (!resumeResultMetered.ok) return resumeResultMetered.response;
+    const resumeResult = resumeResultMetered.result;
     nodes[2].status = "done";
     nodes[2].result = resumeResult.content.slice(0, 100);
 
     // Execute Interview Agent
-    const interviewResult = await callAI({
+    const interviewResultMetered = await callAIWithCredits({ userId, feature: "workflow-run" }, {
       messages: [
         { role: "system", content: "你是 Interview Agent。根据输入生成 1 道面试题。" },
         { role: "user", content: `输入：${input}` },
@@ -71,11 +73,13 @@ export async function POST(req: NextRequest) {
       provider, apiKey, model, baseUrl,
       temperature: 0.7, maxTokens: 200,
     });
+    if (!interviewResultMetered.ok) return interviewResultMetered.response;
+    const interviewResult = interviewResultMetered.result;
     nodes[3].status = "done";
     nodes[3].result = interviewResult.content.slice(0, 100);
 
     // Execute Career Coach
-    const coachResult = await callAI({
+    const coachResultMetered = await callAIWithCredits({ userId, feature: "workflow-run" }, {
       messages: [
         { role: "system", content: "你是 Career Coach。给出 1 条职业建议。" },
         { role: "user", content: `目标：${input}` },
@@ -83,6 +87,8 @@ export async function POST(req: NextRequest) {
       provider, apiKey, model, baseUrl,
       temperature: 0.6, maxTokens: 200,
     });
+    if (!coachResultMetered.ok) return coachResultMetered.response;
+    const coachResult = coachResultMetered.result;
     nodes[4].status = "done";
     nodes[4].result = coachResult.content.slice(0, 100);
 

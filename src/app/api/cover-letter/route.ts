@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
-import { callAI } from "@/lib/ai-provider";
+import { callAIWithCredits } from "@/lib/ai-metering";
 import { parseBody } from "@/lib/validate";
 import { z } from "zod";
 import { aiProviderFields } from "@/lib/schemas";
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       ? "Write the cover letter in English."
       : "用中文撰写求职信。";
 
-    const result = await callAI({
+    const resultMetered = await callAIWithCredits({ userId, feature: "cover-letter" }, {
       messages: [
         {
           role: "system",
@@ -78,6 +78,8 @@ export async function POST(req: NextRequest) {
       temperature: 0.7,
       maxTokens: 1500,
     });
+    if (!resultMetered.ok) return resultMetered.response;
+    const result = resultMetered.result;
 
     // Save to database
     const letter = await db.coverLetter.create({

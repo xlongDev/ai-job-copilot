@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callAI } from "@/lib/ai-provider";
+import { callAIWithCredits } from "@/lib/ai-metering";
 import { parseBody } from "@/lib/validate";
 import { z } from "zod";
 import { aiProviderFields, chatMessageSchema } from "@/lib/schemas";
+import { getCurrentUserId } from "@/lib/auth";
 
 const chatSchema = z.object({
   messages: z.array(chatMessageSchema).min(1).max(200),
@@ -34,7 +35,8 @@ export async function POST(req: NextRequest) {
       context ? `\n\n用户上下文信息：\n${context}` : ""
     }`;
 
-    const result = await callAI({
+    const userId = await getCurrentUserId();
+    const resultMetered = await callAIWithCredits({ userId, feature: "chat" }, {
       messages: [
         { role: "system", content: systemPrompt },
         ...messages.map((m) => ({ role: m.role, content: m.content })),
@@ -46,6 +48,8 @@ export async function POST(req: NextRequest) {
       temperature: 0.7,
       maxTokens: 2000,
     });
+    if (!resultMetered.ok) return resultMetered.response;
+    const result = resultMetered.result;
 
     return NextResponse.json(result);
   } catch (error) {

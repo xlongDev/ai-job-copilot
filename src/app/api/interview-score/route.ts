@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callAI } from "@/lib/ai-provider";
+import { callAIWithCredits } from "@/lib/ai-metering";
 import { parseBody } from "@/lib/validate";
 import { z } from "zod";
 import { aiProviderFields } from "@/lib/schemas";
+import { getCurrentUserId } from "@/lib/auth";
 
 const interviewScoreSchema = z.object({
   question: z.string().min(1).max(10_000),
@@ -26,7 +27,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await callAI({
+    const userId = await getCurrentUserId();
+    const resultMetered = await callAIWithCredits({ userId, feature: "interview-score" }, {
       messages: [
         {
           role: "system",
@@ -45,6 +47,8 @@ export async function POST(req: NextRequest) {
       temperature: 0.5,
       maxTokens: 1000,
     });
+    if (!resultMetered.ok) return resultMetered.response;
+    const result = resultMetered.result;
 
     let evaluation;
     try {

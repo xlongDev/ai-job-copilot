@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callAI } from "@/lib/ai-provider";
+import { callAIWithCredits } from "@/lib/ai-metering";
 import { parseBody } from "@/lib/validate";
 import { z } from "zod";
 import { aiProviderFields } from "@/lib/schemas";
+import { getCurrentUserId } from "@/lib/auth";
 
 const optimizeSchema = z.object({
   text: z.string().min(1).max(200_000),
@@ -30,7 +31,8 @@ export async function POST(req: NextRequest) {
       full: "全面优化以下简历内容，包括表达、结构、关键词和量化数据，使其更符合 ATS 系统和招聘官的偏好。",
     };
 
-    const result = await callAI({
+    const userId = await getCurrentUserId();
+    const resultMetered = await callAIWithCredits({ userId, feature: "optimize" }, {
       messages: [
         {
           role: "system",
@@ -49,6 +51,8 @@ export async function POST(req: NextRequest) {
       temperature: 0.6,
       maxTokens: 1500,
     });
+    if (!resultMetered.ok) return resultMetered.response;
+    const result = resultMetered.result;
 
     return NextResponse.json({
       original: text,

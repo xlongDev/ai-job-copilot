@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
-import { callAI } from "@/lib/ai-provider";
+import { callAIWithCredits } from "@/lib/ai-metering";
 import { parseBody } from "@/lib/validate";
 import { z } from "zod";
 import { aiProviderFields } from "@/lib/schemas";
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     const stepResults: Record<number, string[]> = {};
 
     // Step 1: Analyze target JD
-    const jdResult = await callAI({
+    const jdResultMetered = await callAIWithCredits({ userId, feature: "agent-run" }, {
       messages: [
         { role: "system", content: "你是岗位分析师。简要分析目标岗位的核心要求（3条以内）。简洁输出。" },
         { role: "user", content: `目标岗位：${target}` },
@@ -76,6 +76,8 @@ export async function POST(req: NextRequest) {
       provider, apiKey, model, baseUrl,
       temperature: 0.5, maxTokens: 300,
     });
+    if (!jdResultMetered.ok) return jdResultMetered.response;
+    const jdResult = jdResultMetered.result;
     stepResults[1] = [`识别岗位：${target}`, "提取核心要求", "匹配关键词"];
     steps[0].status = "done";
 
@@ -90,7 +92,7 @@ export async function POST(req: NextRequest) {
     steps[2].status = "done";
 
     // Step 4: STAR optimization
-    const starResult = await callAI({
+    const starResultMetered = await callAIWithCredits({ userId, feature: "agent-run" }, {
       messages: [
         { role: "system", content: "你是简历优化专家。简要说明 STAR 优化建议（2条以内）。简洁。" },
         { role: "user", content: `简历：${resume?.content?.slice(0, 500) || "无简历"}` },
@@ -98,6 +100,8 @@ export async function POST(req: NextRequest) {
       provider, apiKey, model, baseUrl,
       temperature: 0.5, maxTokens: 300,
     });
+    if (!starResultMetered.ok) return starResultMetered.response;
+    const starResult = starResultMetered.result;
     stepResults[4] = [
       starResult.content.trim().slice(0, 100) || "优化 4 段项目经历",
       "补充量化数据 8 处",

@@ -20,13 +20,24 @@ interface UserInfo {
   name: string;
   avatar: string;
   role: string;
+  /** 套餐与额度以数据库为准，不从 localStorage 读，避免前端改数字绕过配额 */
+  plan: string;
+  credits: number;
 }
 
 export function Sidebar() {
-  const { sidebarCollapsed, toggleSidebar, plan, credits } = useAppStore();
+  const { sidebarCollapsed, toggleSidebar } = useAppStore();
   const pathname = usePathname();
-  const [user, setUser] = useState<UserInfo>({ name: "User", avatar: "U", role: "user" });
+  const [user, setUser] = useState<UserInfo>({
+    name: "User",
+    avatar: "U",
+    role: "user",
+    plan: "free",
+    credits: 0,
+  });
 
+  // 保持 promise 链而非 await + useCallback：后者会被 React Compiler 误判为
+  // effect 内同步 setState（Rule: set-state-in-effect），这里是一次性挂载拉取，无依赖
   useEffect(() => {
     fetch("/api/user")
       .then((r) => r.json())
@@ -36,10 +47,14 @@ export function Sidebar() {
             name: data.user.name,
             avatar: data.user.avatar,
             role: data.user.role,
+            plan: data.user.plan,
+            credits: data.user.credits,
           });
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // 侧栏展示失败不影响主内容，静默即可
+      });
   }, []);
 
   const itemsByGroup = (group: NavGroup) => VIEW_LIST.filter((v) => v.group === group);
@@ -142,12 +157,12 @@ export function Sidebar() {
               <div className="mb-1.5 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Zap className="h-3.5 w-3.5 text-primary" />
-                  <span className="text-xs font-semibold">{plan === "free" ? "Free" : plan === "pro" ? "Pro" : plan === "team" ? "Team" : "Enterprise"}</span>
+                  <span className="text-xs font-semibold">{user.plan === "free" ? "Free" : user.plan === "pro" ? "Pro" : user.plan === "team" ? "Team" : "Enterprise"}</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground">{credits} 积分</span>
+                <span className="text-[10px] text-muted-foreground">{user.credits} 积分</span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.min(100, (credits / 2000) * 100)}%` }} />
+                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.min(100, (user.credits / 2000) * 100)}%` }} />
               </div>
               <Link
                 href={viewHref("billing")}

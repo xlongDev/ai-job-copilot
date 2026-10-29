@@ -5,9 +5,12 @@ import { parseBody } from "@/lib/validate";
 import { z } from "zod";
 
 
+const PLAN_IDS = ["free", "pro", "team", "enterprise"] as const;
+
 const billingSchema = z.object({
   action: z.enum(["upgrade","buy-credits"]),
-  planId: z.string().max(60).optional(),
+  // 之前 planId 是任意字符串：把自己改成 enterprise 就能白嫖最高档，现在按枚举收敛
+  planId: z.enum(PLAN_IDS).optional(),
   packId: z.string().max(60).optional(),
 });
 
@@ -105,14 +108,13 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Invalid pack" }, { status: 400 });
       }
       const totalCredits = pack.credits + pack.bonus;
-      const user = await db.user.findUnique({ where: { id: userId } });
-      if (user) {
-        await db.user.update({
-          where: { id: userId },
-          data: { credits: user.credits + totalCredits },
-        });
-      }
-      return NextResponse.json({ success: true, credits: totalCredits });
+      // 原子自增，避免「读余额 → 加总数 → 写回」在并发请求下丢credits
+      const updated = await db.user.update({
+        where: { id: userId },
+        data: { credits: { increment: totalCredits } },
+        select: { credits: true },
+      });
+      return NextResponse.json({ success: true, credits: totalCredits, balance: updated.credits });
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });

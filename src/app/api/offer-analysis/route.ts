@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callAI } from "@/lib/ai-provider";
+import { callAIWithCredits } from "@/lib/ai-metering";
 import { parseBody } from "@/lib/validate";
 import { z } from "zod";
 import { aiProviderFields } from "@/lib/schemas";
+import { getCurrentUserId } from "@/lib/auth";
 
 const offerAnalysisSchema = z.object({
   offers: z.array(z.object({
@@ -101,7 +102,8 @@ export async function POST(req: NextRequest) {
       `Offer ${i + 1}: ${o.company} - ${o.position} (${o.location})\n年薪: ${o.baseSalary}万 + 奖金 ${o.bonus}万\n福利: ${o.benefits.join(", ")}\n优点: ${o.pros.join(", ")}\n缺点: ${o.cons.join(", ")}`
     ).join("\n\n");
 
-    const aiResult = await callAI({
+    const userId = await getCurrentUserId();
+    const aiResultMetered = await callAIWithCredits({ userId, feature: "offer-analysis" }, {
       messages: [
         {
           role: "system",
@@ -119,6 +121,8 @@ export async function POST(req: NextRequest) {
       temperature: 0.5,
       maxTokens: 1000,
     });
+    if (!aiResultMetered.ok) return aiResultMetered.response;
+    const aiResult = aiResultMetered.result;
 
     let aiAnalysis = "";
     let recommendation = "";

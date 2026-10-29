@@ -4,6 +4,7 @@ import { getCurrentUserId } from "@/lib/auth";
 import { parseBody } from "@/lib/validate";
 import { z } from "zod";
 import { aiProviderFields } from "@/lib/schemas";
+import { callAIWithCredits } from "@/lib/ai-metering";
 
 const promptSchema = z.object({
   prompt: z.string().min(1).max(20_000),
@@ -151,8 +152,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const { callAI } = await import("@/lib/ai-provider");
-    const result = await callAI({
+    const resultMetered = await callAIWithCredits({ userId, feature: "prompts" }, {
       messages: [
         { role: "system", content: "你是 AI Job Copilot，专业的求职助手。请根据用户提供的 Prompt 执行任务。" },
         { role: "user", content: finalPrompt },
@@ -164,6 +164,8 @@ export async function POST(req: NextRequest) {
       temperature: 0.7,
       maxTokens: 2000,
     });
+    if (!resultMetered.ok) return resultMetered.response;
+    const result = resultMetered.result;
 
     return NextResponse.json({
       content: result.content,

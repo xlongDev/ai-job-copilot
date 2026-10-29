@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callAI } from "@/lib/ai-provider";
+import { callAIWithCredits } from "@/lib/ai-metering";
 import { parseBody } from "@/lib/validate";
 import { z } from "zod";
 import { aiProviderFields } from "@/lib/schemas";
+import { getCurrentUserId } from "@/lib/auth";
 
 const jdParseSchema = z.object({
   jdText: z.string().min(1).max(200_000),
@@ -38,7 +39,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await callAI({
+    const userId = await getCurrentUserId();
+    const resultMetered = await callAIWithCredits({ userId, feature: "jd-parse" }, {
       messages: [
         {
           role: "system",
@@ -67,6 +69,8 @@ export async function POST(req: NextRequest) {
       temperature: 0.3,
       maxTokens: 1500,
     });
+    if (!resultMetered.ok) return resultMetered.response;
+    const result = resultMetered.result;
 
     let parsed: ParsedJD | null;
     try {

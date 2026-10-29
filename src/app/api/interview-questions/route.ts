@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callAI } from "@/lib/ai-provider";
+import { callAIWithCredits } from "@/lib/ai-metering";
 import { parseBody } from "@/lib/validate";
 import { z } from "zod";
 import { aiProviderFields } from "@/lib/schemas";
+import { getCurrentUserId } from "@/lib/auth";
 
 const interviewQuestionsSchema = z.object({
   type: z.string().max(60).optional(),
@@ -29,7 +30,8 @@ export async function POST(req: NextRequest) {
       system: "系统设计（架构设计、技术选型、扩展性）",
     };
 
-    const result = await callAI({
+    const userId = await getCurrentUserId();
+    const resultMetered = await callAIWithCredits({ userId, feature: "interview-questions" }, {
       messages: [
         {
           role: "system",
@@ -48,6 +50,8 @@ export async function POST(req: NextRequest) {
       temperature: 0.8,
       maxTokens: 1500,
     });
+    if (!resultMetered.ok) return resultMetered.response;
+    const result = resultMetered.result;
 
     // Try to parse JSON from the response
     let questions: { question: string; hint: string }[] = [];

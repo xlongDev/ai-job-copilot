@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
-import { callAI } from "@/lib/ai-provider";
+import { callAIWithCredits } from "@/lib/ai-metering";
 import { parseBody } from "@/lib/validate";
 import { z } from "zod";
 import { aiProviderFields } from "@/lib/schemas";
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Target role is required" }, { status: 400 });
     }
 
-    const result = await callAI({
+    const resultMetered = await callAIWithCredits({ userId, feature: "career-analysis" }, {
       messages: [
         {
           role: "system",
@@ -69,6 +69,8 @@ export async function POST(req: NextRequest) {
       temperature: 0.6,
       maxTokens: 2000,
     });
+    if (!resultMetered.ok) return resultMetered.response;
+    const result = resultMetered.result;
 
     let analysis;
     try {

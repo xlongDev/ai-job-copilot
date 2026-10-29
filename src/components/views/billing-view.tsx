@@ -20,7 +20,6 @@ import { SectionHeader } from "@/components/shared/section-header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -33,7 +32,6 @@ interface BillingData {
 }
 
 export function BillingView() {
-  const { setPlan } = useAppStore();
   const [data, setData] = useState<BillingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
@@ -56,12 +54,16 @@ export function BillingView() {
 
   const handleUpgrade = async (planId: string) => {
     try {
-      await fetch("/api/billing", {
+      const res = await fetch("/api/billing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "upgrade", planId }),
       });
-      setPlan(planId as never);
+      // 之前无论服务端是否成功都弹成功提示，实际套餐没变，只能靠二次拉取暴露不一致
+      if (!res.ok) {
+        toast.error("升级失败");
+        return;
+      }
       toast.success(`已切换到 ${data?.plans.find((p) => p.id === planId)?.name} 套餐`);
       void fetchBilling();
     } catch {
