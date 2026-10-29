@@ -28,7 +28,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (pathname === "/login") {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/app/dashboard", request.url));
   }
 
   return NextResponse.next();

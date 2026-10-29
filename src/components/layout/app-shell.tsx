@@ -4,11 +4,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 import { CommandPalette } from "./command-palette";
-import { useAppStore } from "@/lib/store";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { lazy, Suspense } from "react";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton";
+import type { ViewId } from "@/lib/views";
 
 // Lazy load views for code splitting
 const DashboardView = lazy(() => import("@/components/views/dashboard-view").then(m => ({ default: m.DashboardView })));
@@ -50,7 +50,11 @@ const CockpitView = lazy(() => import("@/components/views/cockpit-view").then(m 
 const InterviewChatView = lazy(() => import("@/components/views/interview-chat-view").then(m => ({ default: m.InterviewChatView })));
 const ResumeScoreView = lazy(() => import("@/components/views/resume-score-view").then(m => ({ default: m.ResumeScoreView })));
 
-const viewMap: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+/**
+ * Record<ViewId, ...> 而非 Record<string, ...>：新增 VIEW_LIST 条目而忘记在这里登记，
+ * 会在 tsc 阶段直接报错，而不是运行时白屏。
+ */
+const viewMap: Record<ViewId, React.LazyExoticComponent<React.ComponentType>> = {
   dashboard: DashboardView,
   resume: ResumeView,
   ats: ATSView,
@@ -81,31 +85,30 @@ const viewMap: Record<string, React.LazyExoticComponent<React.ComponentType>> = 
   "resume-templates": ResumeTemplatesView,
   "interview-records": InterviewRecordsView,
   "resume-compare": ResumeCompareView,
-  "weekly-report-view": WeeklyReportView,
-  "calendar": CalendarView,
-  "achievements": AchievementsView,
-  "goals": GoalsView,
-  "heatmap": HeatmapView,
-  "cockpit": CockpitView,
+  "weekly-report": WeeklyReportView,
+  calendar: CalendarView,
+  achievements: AchievementsView,
+  goals: GoalsView,
+  heatmap: HeatmapView,
+  cockpit: CockpitView,
   "interview-chat": InterviewChatView,
   "resume-score": ResumeScoreView,
 };
 
-export function AppShell() {
-  const { currentView } = useAppStore();
+export function AppShell({ view }: { view: ViewId }) {
   useKeyboardShortcuts();
 
-  const ViewComponent = viewMap[currentView] || DashboardView;
+  const ViewComponent = viewMap[view];
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Topbar />
+        <Topbar view={view} />
         <main className="flex-1 overflow-y-auto scrollbar-thin">
           <AnimatePresence mode="wait">
             <motion.div
-              key={currentView}
+              key={view}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}

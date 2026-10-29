@@ -32,7 +32,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScoreRing } from "@/components/shared/score-ring";
 import { EmptyState } from "@/components/shared/loading-skeleton";
-import { useAppStore } from "@/lib/store";
+import { useRouter } from "next/navigation";
+import { viewHref } from "@/lib/views";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -66,7 +67,7 @@ const colorClasses: Record<string, string> = {
 };
 
 export function InterviewRecordsView() {
-  const { setView } = useAppStore();
+  const router = useRouter();
   const [records, setRecords] = useState<InterviewRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<InterviewRecord | null>(null);
@@ -107,7 +108,7 @@ export function InterviewRecordsView() {
         subtitle="历史面试复盘与评分趋势"
         icon={<Mic className="h-5 w-5" />}
         action={
-          <Button size="sm" className="gap-2" onClick={() => setView("interview")}>
+          <Button size="sm" className="gap-2" onClick={() => router.push(viewHref("interview"))}>
             <RotateCcw className="h-4 w-4" />
             开始新面试
           </Button>
@@ -176,7 +177,7 @@ export function InterviewRecordsView() {
             icon={<Mic className="h-12 w-12" />}
             title="暂无面试记录"
             description="完成模拟面试后，记录将自动保存到这里"
-            action={<Button size="sm" className="gap-2" onClick={() => setView("interview")}><Mic className="h-4 w-4" />开始面试</Button>}
+            action={<Button size="sm" className="gap-2" onClick={() => router.push(viewHref("interview"))}><Mic className="h-4 w-4" />开始面试</Button>}
           />
         ) : (
           <div className="space-y-3">

@@ -21,7 +21,8 @@ import {
   Command,
   ChevronDown,
 } from "lucide-react";
-import { useAppStore } from "@/lib/store";
+import { useRouter } from "next/navigation";
+import { viewHref } from "@/lib/views";
 import { AuroraBackground } from "@/components/shared/aurora-background";
 import { AnimatedCounter } from "@/components/shared/animated-counter";
 import { Button } from "@/components/ui/button";
@@ -143,7 +144,7 @@ const pricing = [
 ];
 
 export function LandingView() {
-  const { enterApp } = useAppStore();
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -169,10 +170,10 @@ export function LandingView() {
           <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground">价格</a>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => enterApp("dashboard")}>
+          <Button variant="ghost" size="sm" onClick={() => router.push(viewHref("dashboard"))}>
             登录
           </Button>
-          <Button size="sm" onClick={() => enterApp("dashboard")} className="gap-2">
+          <Button size="sm" onClick={() => router.push(viewHref("dashboard"))} className="gap-2">
             免费开始
             <ArrowRight className="h-3.5 w-3.5" />
           </Button>
@@ -229,7 +230,7 @@ export function LandingView() {
           >
             <Button
               size="lg"
-              onClick={() => enterApp("dashboard")}
+              onClick={() => router.push(viewHref("dashboard"))}
               className="group h-12 gap-2 px-8 text-base glow-emerald"
             >
               <Zap className="h-4 w-4" />
@@ -239,7 +240,7 @@ export function LandingView() {
             <Button
               size="lg"
               variant="outline"
-              onClick={() => enterApp("agent")}
+              onClick={() => router.push(viewHref("agent"))}
               className="h-12 gap-2 px-8 text-base"
             >
               <Bot className="h-4 w-4" />
@@ -466,7 +467,7 @@ export function LandingView() {
                 <Button
                   className="mb-6 w-full"
                   variant={plan.highlight ? "default" : "outline"}
-                  onClick={() => enterApp("dashboard")}
+                  onClick={() => router.push(viewHref("dashboard"))}
                 >
                   {plan.cta}
                 </Button>
@@ -616,7 +617,7 @@ export function LandingView() {
               </p>
               <Button
                 size="lg"
-                onClick={() => enterApp("dashboard")}
+                onClick={() => router.push(viewHref("dashboard"))}
                 className="group h-12 gap-2 px-8 text-base glow-emerald"
               >
                 <Sparkles className="h-4 w-4" />

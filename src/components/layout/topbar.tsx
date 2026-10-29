@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { Search, Bell, Command, Sun, Moon, Globe, Plus, Settings, Check, LogOut } from "lucide-react";
 import { useAppStore } from "@/lib/store";
+import { VIEW_META, viewHref, type ViewId } from "@/lib/views";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -16,52 +18,11 @@ import {
 import { locales } from "@/lib/i18n/locales";
 import { NotificationDrawer } from "@/components/shared/notification-drawer";
 
-const viewTitles: Record<string, { title: string; desc: string }> = {
-  dashboard: { title: "仪表盘", desc: "你的求职全景概览" },
-  cockpit: { title: "驾驶舱", desc: "全屏数据可视化驾驶舱" },
-  resume: { title: "简历管理", desc: "创建、优化、管理你的简历" },
-  "resume-templates": { title: "简历模板", desc: "选择适合你的简历模板" },
-  "resume-compare": { title: "简历对比", desc: "多版本简历并排对比" },
-  "resume-score": { title: "简历评分", desc: "AI 8 维度简历评分" },
-  ats: { title: "ATS 扫描", desc: "检测简历的 ATS 兼容性" },
-  "jd-match": { title: "JD 匹配", desc: "分析岗位匹配度" },
-  "star-generator": { title: "STAR 生成器", desc: "AI 将项目描述重构为 STAR 结构" },
-  "offer-analysis": { title: "Offer 分析", desc: "多 Offer 对比与决策建议" },
-  "weekly-report-view": { title: "求职周报", desc: "AI 生成求职周报总结" },
-  "calendar": { title: "求职日历", desc: "日历展示面试/投递/学习计划" },
-  chat: { title: "AI 对话", desc: "与你的 AI 职业教练对话" },
-  "career-coach": { title: "职业教练", desc: "AI 驱动的职业成长规划" },
-  "skill-gap": { title: "技能差距分析", desc: "当前技能 vs 目标岗位" },
-  "prompt-library": { title: "Prompt 库", desc: "官方 Prompt + 自定义 Prompt" },
-  interview: { title: "模拟面试", desc: "AI 模拟真实面试场景" },
-  "interview-chat": { title: "AI 面试官", desc: "多轮对话面试 + 实时追问" },
-  "interview-records": { title: "面试记录", desc: "历史面试记录与复盘" },
-  "voice-interview": { title: "语音面试", desc: "AI 实时语音对话与评分" },
-  "video-interview": { title: "视频面试", desc: "摄像头分析眼神、语速、表情" },
-  portfolio: { title: "作品集分析", desc: "分析 GitHub 和作品集" },
-  learning: { title: "学习路线", desc: "AI 生成的个性化学习计划" },
-  tracker: { title: "求职追踪", desc: "管理你的投递进度" },
-  analytics: { title: "数据分析", desc: "深度分析你的求职数据" },
-  heatmap: { title: "活跃热力图", desc: "GitHub 风格求职活跃度热力图" },
-  achievements: { title: "成就系统", desc: "解锁徽章，追踪成长" },
-  goals: { title: "求职目标", desc: "设置和跟踪你的求职目标" },
-  agent: { title: "AI Job Agent", desc: "自动化你的整个求职流程" },
-  agents: { title: "Agent 中心", desc: "多 Agent 协作架构" },
-  workflow: { title: "工作流编排", desc: "LangGraph 可视化 Agent 编排" },
-  rag: { title: "RAG 知识库", desc: "私人向量知识库" },
-  mcp: { title: "MCP 协议", desc: "Model Context Protocol 集成" },
-  "browser-agent": { title: "浏览器 Agent", desc: "自动浏览招聘网站" },
-  plugins: { title: "插件市场", desc: "扩展平台能力" },
-  billing: { title: "订阅与账单", desc: "管理你的套餐和积分" },
-  team: { title: "团队管理", desc: "多租户团队协作" },
-  settings: { title: "设置", desc: "管理你的账户和偏好" },
-};
-
-export function Topbar() {
-  const { currentView, setCommandOpen, activeProvider, setActiveProvider, providerKeys, language, notifications } = useAppStore();
+export function Topbar({ view }: { view: ViewId }) {
+  const { setCommandOpen, activeProvider, setActiveProvider, providerKeys, language, notifications } = useAppStore();
   const { theme, setTheme } = useTheme();
   const [notifOpen, setNotifOpen] = useState(false);
-  const viewInfo = viewTitles[currentView] || viewTitles.dashboard;
+  const viewInfo = VIEW_META[view];
 
   const providerNames: Record<string, string> = {
     zai: "ZAI",
@@ -89,7 +50,7 @@ export function Topbar() {
       {/* Title */}
       <div className="flex flex-col">
         <motion.h1
-          key={currentView}
+          key={view}
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-lg font-semibold tracking-tight"
@@ -138,9 +99,11 @@ export function Topbar() {
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => useAppStore.getState().setView("settings")}>
-            <Settings className="h-3.5 w-3.5 mr-2" />
-            配置 API Key
+          <DropdownMenuItem asChild>
+            <Link href={viewHref("settings")}>
+              <Settings className="h-3.5 w-3.5 mr-2" />
+              配置 API Key
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

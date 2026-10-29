@@ -9,6 +9,7 @@ import { GlassCard } from "@/components/shared/glass-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DEFAULT_VIEW, viewHref } from "@/lib/views";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,7 +33,13 @@ export default function LoginPage() {
         setError(data.error || "登录失败");
         return;
       }
-      router.push("/");
+      // 只接受站内绝对路径，避免 ?from=//evil.com 这类开放重定向
+      const from = new URLSearchParams(window.location.search).get("from");
+      const target =
+        from && from.startsWith("/") && !from.startsWith("//")
+          ? from
+          : viewHref(DEFAULT_VIEW);
+      router.push(target);
       router.refresh();
     } catch {
       setError("网络异常，请重试");

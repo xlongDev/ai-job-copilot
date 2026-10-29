@@ -40,7 +40,8 @@ import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
 import { AnimatedCounter } from "@/components/shared/animated-counter";
 import { ScoreRing } from "@/components/shared/score-ring";
-import { useAppStore } from "@/lib/store";
+import { useRouter } from "next/navigation";
+import { viewHref } from "@/lib/views";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -120,7 +121,7 @@ const statCards = [
 ];
 
 export function DashboardView() {
-  const { setView } = useAppStore();
+  const router = useRouter();
   const [stats, setStats] = useState<RealStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [recentApps, setRecentApps] = useState<{
@@ -185,11 +186,11 @@ export function DashboardView() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setView("agent")} className="gap-2">
+          <Button variant="outline" size="sm" onClick={() => router.push(viewHref("agent"))} className="gap-2">
             <Bot className="h-4 w-4" />
             启动 AI Agent
           </Button>
-          <Button size="sm" onClick={() => setView("resume")} className="gap-2">
+          <Button size="sm" onClick={() => router.push(viewHref("resume"))} className="gap-2">
             <Sparkles className="h-4 w-4" />
             优化简历
           </Button>
@@ -460,7 +461,7 @@ export function DashboardView() {
               title="最近投递"
               icon={<ArrowUpRight className="h-5 w-5" />}
               action={
-                <Button variant="ghost" size="sm" className="text-xs" onClick={() => setView("tracker")}>
+                <Button variant="ghost" size="sm" className="text-xs" onClick={() => router.push(viewHref("tracker"))}>
                   全部
                 </Button>
               }
@@ -580,7 +581,7 @@ export function DashboardView() {
               subtitle="当前进行中的学习路线"
               icon={<Clock className="h-5 w-5" />}
               action={
-                <Button variant="ghost" size="sm" className="text-xs" onClick={() => setView("learning")}>
+                <Button variant="ghost" size="sm" className="text-xs" onClick={() => router.push(viewHref("learning"))}>
                   查看路线
                 </Button>
               }
@@ -614,7 +615,7 @@ export function DashboardView() {
             <p className="mt-4 text-center text-xs text-muted-foreground">
               你的简历超过了 <span className="font-medium text-foreground">73%</span> 的求职者
             </p>
-            <Button variant="outline" size="sm" className="mt-4 w-full" onClick={() => setView("ats")}>
+            <Button variant="outline" size="sm" className="mt-4 w-full" onClick={() => router.push(viewHref("ats"))}>
               查看详情
             </Button>
           </GlassCard>
@@ -634,19 +635,19 @@ export function DashboardView() {
             icon={<Zap className="h-5 w-5" />}
           />
           <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
-            {[
+            {([
               { label: "优化简历", icon: Sparkles, view: "resume", color: "emerald" },
               { label: "ATS 扫描", icon: ScanLine, view: "ats", color: "violet" },
               { label: "JD 匹配", icon: Target, view: "jd-match", color: "amber" },
               { label: "模拟面试", icon: Mic, view: "interview", color: "emerald" },
               { label: "AI Agent", icon: Bot, view: "agent", color: "violet" },
               { label: "求职追踪", icon: FileText, view: "tracker", color: "amber" },
-            ].map((action) => {
+            ] as const).map((action) => {
               const Icon = action.icon;
               return (
                 <button
                   key={action.label}
-                  onClick={() => setView(action.view as never)}
+                  onClick={() => router.push(viewHref(action.view))}
                   className="group flex flex-col items-center gap-2 rounded-lg border border-border/50 bg-card/30 p-4 transition hover:border-primary/30 hover:bg-primary/5"
                 >
                   <div className={cn(

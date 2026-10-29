@@ -1,47 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type ViewId =
-  | "landing"
-  | "dashboard"
-  | "resume"
-  | "ats"
-  | "jd-match"
-  | "chat"
-  | "career-coach"
-  | "interview"
-  | "voice-interview"
-  | "video-interview"
-  | "portfolio"
-  | "learning"
-  | "tracker"
-  | "analytics"
-  | "agent"
-  | "agents"
-  | "workflow"
-  | "rag"
-  | "mcp"
-  | "browser-agent"
-  | "plugins"
-  | "billing"
-  | "team"
-  | "settings"
-  | "star-generator"
-  | "prompt-library"
-  | "offer-analysis"
-  | "skill-gap"
-  | "resume-templates"
-  | "interview-records"
-  | "resume-compare"
-  | "weekly-report-view"
-  | "calendar"
-  | "achievements"
-  | "goals"
-  | "heatmap"
-  | "cockpit"
-  | "interview-chat"
-  | "resume-score";
-
 export type AIProviderId = "zai" | "openai" | "claude" | "gemini" | "deepseek" | "qwen" | "openrouter" | "mistral" | "llama" | "groq" | "xai" | "perplexity" | "moonshot" | "yi" | "baichuan" | "minimax" | "zhipu" | "ollama";
 
 export interface AIProviderConfig {
@@ -53,13 +12,6 @@ export interface AIProviderConfig {
 }
 
 interface AppState {
-  // Navigation
-  currentView: ViewId;
-  isAppMode: boolean;
-  setView: (view: ViewId) => void;
-  enterApp: (view?: ViewId) => void;
-  exitApp: () => void;
-
   // Command palette
   commandOpen: boolean;
   setCommandOpen: (open: boolean) => void;
@@ -96,13 +48,6 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
-      currentView: "dashboard",
-      isAppMode: false,
-      setView: (view) => set({ currentView: view }),
-      enterApp: (view) =>
-        set({ isAppMode: true, currentView: view ?? "dashboard" }),
-      exitApp: () => set({ isAppMode: false, currentView: "landing" }),
-
       commandOpen: false,
       setCommandOpen: (open) => set({ commandOpen: open }),
 
@@ -153,8 +98,6 @@ export const useAppStore = create<AppState>()(
         providerKeys: s.providerKeys,
         language: s.language,
         sidebarCollapsed: s.sidebarCollapsed,
-        isAppMode: s.isAppMode,
-        currentView: s.currentView,
         credits: s.credits,
         plan: s.plan,
       }),

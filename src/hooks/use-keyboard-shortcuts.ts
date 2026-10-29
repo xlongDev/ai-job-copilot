@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAppStore } from "@/lib/store";
+import { GO_TO_KEYS, viewHref } from "@/lib/views";
 
 export function useKeyboardShortcuts() {
-  const { setCommandOpen, setView, enterApp } = useAppStore();
+  const { setCommandOpen } = useAppStore();
+  const router = useRouter();
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -14,23 +17,17 @@ export function useKeyboardShortcuts() {
       if (isMod && e.key === "k") {
         e.preventDefault();
         setCommandOpen(true);
+        return;
       }
 
       // G + key navigation
       if (e.key === "g" && !isMod && !e.altKey) {
         const onKey = (ev: KeyboardEvent) => {
-          const map: Record<string, string> = {
-            d: "dashboard",
-            r: "resume",
-            a: "ats",
-            j: "jd-match",
-            t: "tracker",
-            c: "chat",
-          };
-          const view = map[ev.key.toLowerCase()];
+          const view = GO_TO_KEYS[ev.key.toLowerCase()];
           if (view) {
             ev.preventDefault();
-            setView(view as never);
+            setCommandOpen(false);
+            router.push(viewHref(view));
           }
           window.removeEventListener("keydown", onKey);
         };
@@ -40,5 +37,5 @@ export function useKeyboardShortcuts() {
 
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [setCommandOpen, setView, enterApp]);
+  }, [setCommandOpen, router]);
 }

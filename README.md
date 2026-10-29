@@ -50,6 +50,21 @@ CI 在每次 push / PR 到 `main` 时自动跑完整门禁，见 `.github/workfl
   - 未登录访问 API → `401`
   - 未登录访问页面 → `302 /login`
 
+## 路由
+
+视图状态放在 URL 里而不是 zustand，因此支持深链、分享、前进/后退与逐页标题。
+
+| 路径 | 说明 |
+| --- | --- |
+| `/` | 落地页 |
+| `/login` | 登录页（已登录自动跳 `/app/dashboard`） |
+| `/app/[view]` | 应用内视图，共 38 个，构建期静态化 |
+
+- 路由表单一数据源在 `src/lib/views.ts`（id / 侧栏文案 / 顶栏标题 / 分组 / 角标 / 快捷键），
+  图标映射在 `src/lib/view-icons.ts`。新增视图：加一条 `VIEW_LIST` + 在 `app-shell.tsx` 的
+  `viewMap` 登记组件 —— `viewMap` 声明为 `Record<ViewId, ...>`，漏登记会直接编译报错。
+- `dynamicParams = false`：未登记的 view 一律 404，不会落到「兜底仪表盘」这种暧昧行为。
+
 ## 入参校验
 
 所有写接口的请求体统一走 zod（`src/lib/validate.ts` 的 `parseBody`），非法输入返回 `400` 并附带字段级错误：
@@ -64,13 +79,21 @@ CI 在每次 push / PR 到 `main` 时自动跑完整门禁，见 `.github/workfl
 
 ```
 src/
-  app/            页面与 Route Handlers（api/ 下 50+ 接口）
+  app/
+    page.tsx        落地页
+    login/          登录页
+    app/[view]/     视图路由（38 个，构建期静态化）
+    api/            Route Handlers（50+ 接口）
   components/
     ui/           shadcn/ui 基础组件
-    views/        39 个业务视图（按 viewMap 懒加载）
+    views/        38 个业务视图（按路由懒加载）
     layout/       AppShell / Sidebar / Topbar / 命令面板
     shared/       玻璃拟态卡片、骨架屏、错误边界等
-  lib/            db / auth / session / AI provider 抽象 / zustand store
+  lib/
+    views.ts      视图路由单一数据源
+    validate.ts   zod 入参校验
+    schemas.ts    共享 schema 片段
+    db / auth / session-token / ai-provider / store
   proxy.ts        请求入口鉴权
 prisma/           schema + seed
 ```
